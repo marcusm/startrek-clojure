@@ -2,7 +2,8 @@
   (:use [startrek.ui.core :only [->UI]]
         [startrek.ui.drawing :only [draw-game]]
         [startrek.ui.input :only [get-input process-input]])
-  (:require [lanterna.screen :as s]))
+  (:require [lanterna.screen :as s]
+            [clojure.java.io :as io]))
 
 
 ; Data Structures -------------------------------------------------------------
@@ -10,6 +11,8 @@
 
 ; Main ------------------------------------------------------------------------
 (defn run-game [game screen]
+  (println (slurp (-> "hello.txt" io/resource io/file)))
+  ;;(println (slurp (.getFile clojure.java.io/resource "loremipsum.txt")))
   (loop [{:keys [input uis] :as game} game]
     (when-not (empty? uis)
       (draw-game game screen)
