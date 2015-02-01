@@ -91,5 +91,7 @@
     (dotimes [i seed]
       (.nextDouble seed-rand)))
 
-  (play-game)
-)
+  (play-game))
+
+(defn get-klingons []
+  (+ 2 1))

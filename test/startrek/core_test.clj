@@ -1,7 +1,7 @@
 (ns startrek.core-test
-  (:require [clojure.test :refer :all]
-            [startrek.core :refer :all]))
+  (:use midje.sweet)
+  (:use [startrek.core]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(facts "About creating the starmap"
+  (fact "I can reliably add some Klingons into a quadrant."
+        (get-klingons) => 0))
