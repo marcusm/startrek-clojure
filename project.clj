@@ -17,6 +17,7 @@
                   cider.nrepl.middleware.trace/wrap-trace]}
   :profiles {:1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}
              :repl {:plugins [[cider/cider-nrepl "0.7.0"]]}
+             :dev {:dependencies [[midje "1.6.3"]]}
              }
   :main startrek.core
   :uberjar-name "startrek-standalone.jar"

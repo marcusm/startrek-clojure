@@ -42,3 +42,6 @@
                       (args ":text")  :text
                       :else           :auto)]
     (main screen-type true)))
+
+(defn get-klingons []
+  (2))
