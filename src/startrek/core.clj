@@ -1,15 +1,77 @@
-(ns startrek.core)
-(import '(java.util Random))
+(ns startrek.core
+  (:require [clojure.data.generators :as gen]
+            [clojure.core.reducers :as r]))
+; The global game datastructure
+(def game-state (atom 0))
+
+(defn fill-test [x]
+  (+ 50 x))
+
+(defn get-klingons []
+  (let [chance (gen/double)]
+    (cond
+      (> chance 0.98) 3
+      (> chance 0.95) 2
+      (> chance 0.8)  1
+      :else 0)))
+
+(def red-test  (r/filter #(> 0  (:klingon %))))
+
+(defn get-starbases []
+  (let [chance (gen/double)]
+    (cond
+      (> chance 0.96) 1
+      :else 0))) 
+
+(defn get-stars [] (gen/uniform 1 9))
+
+(defn quadrant-klingon-count [quadrants]
+  (reduce + (flatten (map #(map :klingons %) quadrants))))
+(defn quadrant-starbase-count [quadrants]
+  (reduce + (flatten (map #(map :bases %) quadrants))))
+
+(defn create-quadrants []
+  (to-array-2d 
+    (partition  9
+               (for  [y  (range 1 10) x  (range 1 10)]  
+                 {:x x :y y :klingons (get-klingons) :stars (get-stars) :bases (get-starbases)}))))
+
+(defn reset-quadrants []
+  (loop []
+  (let [quadrants (create-quadrants)]
+    (cond
+      (<= (quadrant-klingon-count quadrants) 0) (recur)
+      (<= (quadrant-starbase-count quadrants) 0) (recur)
+      :else quadrants))))
+
+; reset enterprise state
+(defn reset-enterprise []
+  {:damage 
+   {:short_range_sensors 0
+    :computer_display 0
+    :long_range_sensors 0
+    :phasers 0
+    :warp_engines 0
+    :photon_torpedo_tubes 0
+    :shields 0}
+   :photon_torperdoes 10
+   :energy 3000
+   :is_docked false
+   })
+
+; fetch default game state
+(defn new-game-state []
+  (defn gen-0-8 [] (gen/uniform 0 8))
+  (defn gen-stardate [] (* 100 (+ 20 (gen/uniform 1 21))))
+
+  {:enterprise (reset-enterprise)
+  :quadrant (reset-quadrants)
+  :sector {:x (gen-0-8) :y (gen-0-8)}
+  :stardate {:start (gen-stardate) :end 30}}
+  )
 
 (defn print-instructions []
   (println "INSTRUCTIONS"))
-
-(let [m (.getDeclaredMethod clojure.lang.LispReader
-                            "matchNumber"
-                            (into-array [String]))]
-  (.setAccessible m true)
-  (defn parse-number [s]
-    (.invoke m clojure.lang.LispReader (into-array [s]))))
 
 (def seed-rand)
 
@@ -69,6 +131,15 @@
           (command-help)
           )))))
 
+; only needed for reading numbers from command line
+(let [m (.getDeclaredMethod clojure.lang.LispReader
+                            "matchNumber"
+                            (into-array [String]))]
+  (.setAccessible m true)
+  (defn parse-number [s]
+    (.invoke m clojure.lang.LispReader (into-array [s]))))
+
+
 (defn -main [& args]
   (dotimes [i 20]
     (println))
@@ -86,12 +157,6 @@
   (println)
   (println "ENTER SEED NUMBER ")
   (let [seed (parse-number (read-line))]
-    (def seed-rand (java.util.Random. seed))
-    (println "INITIALIZING...")
-    (dotimes [i seed]
-      (.nextDouble seed-rand)))
+    (gen/*rnd* seed))
 
   (play-game))
-
-(defn get-klingons []
-  (+ 2 1))
