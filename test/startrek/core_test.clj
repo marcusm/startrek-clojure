@@ -1,4 +1,3 @@
 (ns startrek.core-test
   (:use midje.sweet)
-  (:use [startrek.core]))
-
+  (:require [startrek.core :as c]))
