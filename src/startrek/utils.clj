@@ -13,6 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Wraps the random distribution methods so I can swap them out when testing.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; randomness wrappers
 (declare gen-idx gen-idx gen-double gen-uniform)
 
@@ -39,4 +40,11 @@
   "Computes the Euclidean distance between two sequences"
   [a b]
   (math/sqrt (euclidean-squared-distance a b)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Functions used to extract or change shape of map data.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn strip-x-y [a-map]
+  (let [{:keys [x y]} a-map]
+    [x y]))
 
