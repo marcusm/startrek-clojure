@@ -1,5 +1,6 @@
 (ns startrek.world
-   (:require [clojure.data.generators :as gen]))
+   (:require [clojure.data.generators :as gen])
+   (:require [clojure.math.numeric-tower :as math]))
 
 ;; randomness wrappers
 (declare gen-idx gen-idx gen-double gen-uniform)
@@ -35,8 +36,8 @@
 ;; These methods are used to reset and initialize the world.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn reset-enterprise
- "Returns a new instance of the enterprise in the default (repaired) state."
- []
+  "Returns a new instance of the enterprise in the default (repaired) state."
+  []
   {:damage
    {:short_range_sensors 0
     :computer_display 0
@@ -49,6 +50,8 @@
    :energy 3000
    :shields 0
    :is_docked false
+   :quadrant {:x (gen-idx) :y (gen-idx)}
+   :sector {:x (gen-idx) :y (gen-idx)}
    })
 
 ; fetch default game state
@@ -59,10 +62,9 @@
 
   (reset! game-state
     {:enterprise (reset-enterprise)
-    :quadrant {:x (gen-idx) :y (gen-idx)}
-    :sector {:x (gen-idx) :y (gen-idx)}
     :quads (reset-quadrants)
     :current-sector {}
+    :current-klingons []
     :stardate {:start (gen-stardate) :end 30}}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -110,6 +112,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these methods are used to fill quadrants with actors.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(declare assign-sector-klingon)
 (defn init-sector
   "Initialize a sector with the right amount of game related items."
   [game-state]
@@ -117,13 +120,20 @@
     (to-array-2d
       (partition  dim
                  (for  [y  (range dim) x  (range dim)]  0))))
-  (def quad (aget (:quads @game-state) (get-in @game-state [:quadrant :x]) (get-in @game-state [:quadrant :y])))
+  (def quad (aget (:quads @game-state)
+                  (get-in @game-state [:enterprise :quadrant :x])
+                  (get-in @game-state [:enterprise :quadrant :y])))
+  (swap! game-state assoc-in [:current-klingons] [{:x 1 :y 1 :energy 200} {:x 1 :y 2 :energy 200}])
 
   (let [sector (create-empty-sector)]
-    (aset sector (get-in @game-state [:sector :x]) (get-in @game-state [:sector :y]) enterprise-id)
+    (aset sector
+          (get-in @game-state [:enterprise :sector :x])
+          (get-in @game-state [:enterprise :sector :y]) 
+          enterprise-id)
+
     (loop [k (:klingons quad)]
       (when (pos? k)
-        (assign-sector-item sector klingon-id)
+        (assign-sector-klingon sector klingon-id game-state)
         (recur (dec k))))
     (loop [k (:bases quad)]
       (when (pos? k)
@@ -142,7 +152,88 @@
     (let [x (gen-idx) y (gen-idx)]
       (if (pos? (aget sector x y ))
         (recur)
-       (aset sector x y value)))))
+        (aset sector x y value) ))))
+
+(defn- assign-sector-klingon
+  "Assign an item in a sector to a location."
+  [sector value game-state]
+  (loop []
+    (let [x (gen-idx) y (gen-idx)]
+      (if (pos? (aget sector x y ))
+        (recur)
+        (do
+          (swap! game-state
+                 assoc-in [:current-klingons]
+                          (conj (get-in @game-state [:current-klingons]) {:x x :y y :energy 200}))
+          (aset sector x y value))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Klingons get to attack too.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn- sqr
+    "Uses the numeric tower expt to square a number"
+      [x]
+        (math/expt x 2))
+
+(defn- euclidean-squared-distance
+  "Computes the Euclidean squared distance between two sequences"
+  [a b]
+  (reduce +  (map  (comp sqr -) a b)))
+
+(defn- euclidean-distance
+  "Computes the Euclidean distance between two sequences"
+  [a b]
+  (math/sqrt (euclidean-squared-distance a b)))
+
+(defn strip-x-y [a-map]
+  (let [{:keys [x y]} a-map]
+    [x y]))
+
+(defn- klingon-shot-strength
+  [klingon enterprise]
+  (* (/ (get-in klingon [:energy])
+        (euclidean-distance (strip-x-y klingon) (strip-x-y enterprise)))
+     2
+     (gen-double)))
+
+(defn klingon-dead? [klingon]
+  (<= (:energy klingon) 0))
+
+(defn klingon-shot [enterprise klingon]
+  (let [h (klingon-shot-strength klingon (-> enterprise :sector))]
+    {:hit h :enterprise (update-in enterprise [:shields] - h)}))
+
+(defn klingon-attack [enterprise klingon]
+  (if (klingon-dead? klingon)
+    enterprise
+    (let [r (klingon-shot enterprise klingon)]
+      (println (format "%3.1f UNIT HIT ON ENTERPRISE FROM SECTOR %d,%d" (:hit r) (:x klingon) (:y klingon)))
+      (println (format "   (%3.1f LEFT)" (max 0 (get-in r [:enterprise :shields]))))
+      (:enterprise r))))
+
+(defn klingon-turn [enterprise klingons]
+  (reduce klingon-attack enterprise klingons))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; The functions repair damage to the enterprise during turns.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn- map-function-on-map-vals  [m f]
+  (reduce
+    (fn  [altered-map  [k v]]
+      (assoc altered-map k  (f v)))  {} m))
+
+(defn- repair-system [v]
+  (if (pos? v)
+    (dec v)
+    v))
+
+(defn repair-damage
+  "This function handles repairing damage to the enterprise during every turn."
+  [enterprise]
+  (update-in enterprise [:damage] map-function-on-map-vals repair-system))
+  ; (assoc enterprise
+  ;        :damage
+  ;        (map-function-on-map-vals (:damage enterprise) repair-system)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Wraps the random distribution methods so I can swap them out when testing.
