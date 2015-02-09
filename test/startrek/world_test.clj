@@ -1,5 +1,6 @@
 (ns startrek.world-test
   (:use midje.sweet)
+  (:require [startrek.utils :as u :refer :all])
   (:require [startrek.world :as w]))
 
 ;; These tests are mostly useless, just helping me learn midje.
@@ -8,7 +9,7 @@
     (fact "The amount of klingons we get varies base on a random number roll."
         (#'w/assign-quadrant-klingons) => ?result
           (provided
-            (w/gen-double) => ?gen))
+            (gen-double) => ?gen))
           ?gen      ?result
           0.0       0
           0.7       0
@@ -25,7 +26,7 @@
     (fact "Getting a base depends on a random number roll."
         (#'w/assign-quadrant-starbases) => ?result
           (provided
-            (w/gen-double) => ?gen))
+            (gen-double) => ?gen))
           ?gen      ?result
           0.0       0
           0.7       0
@@ -54,7 +55,7 @@
                                                                       :sector {:x 6 :y 7}
                                                                       :shields pos?})
                (provided
-                 (w/gen-double) =streams=> [0.55 0.25]))))
+                 (gen-double) =streams=> [0.55 0.25]))))
 
 
 (facts "Verify we can detect if a klingon is alive or dead"
@@ -73,5 +74,5 @@
                                :quadrant {:x 2 :y 3}}]
              (w/klingon-shot enterprise klingon) => (just {:hit pos? :enterprise map?})
              (provided
-               (w/gen-double) =streams=> [0.55 0.25]))))
+               (gen-double) =streams=> [0.55 0.25]))))
 
