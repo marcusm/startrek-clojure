@@ -1,4 +1,4 @@
-(ns startrek.world-test
+(ns startrek.klingon-test
   (:use midje.sweet)
   (:require [startrek.utils :as u :refer :all])
   (:require [startrek.klingon :as k]))
@@ -19,7 +19,23 @@
                                                                       :sector {:x 6 :y 7}
                                                                       :shields pos?})
                (provided
-                 (gen-double) =streams=> [0.55 0.25]))))
+                 (gen-double) =streams=> [0.55 0.25])))
+       (fact "A weak enterprise will be destroyed."
+             (let [current-klingons [{:x 2 :y 8 :energy 200}
+                                     {:x 3 :y 8 :energy 0}
+                                     {:x 3 :y 8 :energy 200}]
+                   enterprise {:is_docked false
+                               :shields 10
+                               :energy 100
+                               :sector {:x 6 :y 7}
+                               :quadrant {:x 2 :y 3}}]
+               (k/klingon-turn enterprise current-klingons) => (just {:energy 100
+                                                                      :is_docked false
+                                                                      :quadrant {:x 2 :y 3}
+                                                                      :sector {:x 6 :y 7}
+                                                                      :shields neg?})
+               (provided
+                 (gen-double) =streams=> [0.45 0.25]))))
 
 
 (facts "Verify we can detect if a klingon is alive or dead"
@@ -36,6 +52,6 @@
                                :energy 1000
                                :sector {:x 6 :y 7}
                                :quadrant {:x 2 :y 3}}]
-               (k/klingon-shot enterprise klingon) => (just {:hit pos? :enterprise map?})
+               (#'k/klingon-shot enterprise klingon) => (just {:hit pos? :enterprise map?})
                (provided
                  (gen-double) =streams=> [0.55 0.25]))))

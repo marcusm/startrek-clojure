@@ -1,5 +1,6 @@
 (ns startrek.world
    (:require [startrek.utils :as u :refer :all])
+   (:require [startrek.enterprise :as e :refer :all])
    (:require [clojure.math.numeric-tower :as math]))
 
 ;; populating quadrants
@@ -20,28 +21,6 @@
   "Returns the number of starbases remaining in the game."
   [quadrants]
   (reduce + (flatten (map #(map :bases %) quadrants))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; These methods are used to reset and initialize the world.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn reset-enterprise
-  "Returns a new instance of the enterprise in the default (repaired) state."
-  []
-  {:damage
-   {:short_range_sensors 0
-    :computer_display 0
-    :long_range_sensors 0
-    :phasers 0
-    :warp_engines 0
-    :photon_torpedo_tubes 0
-    :shields 0}
-   :photon_torperdoes 10
-   :energy 3000
-   :shields 0
-   :is_docked false
-   :quadrant {:x (gen-idx) :y (gen-idx)}
-   :sector {:x (gen-idx) :y (gen-idx)}
-   })
 
 ; fetch default game state
 (defn new-game-state
@@ -102,6 +81,7 @@
 ;; All of these methods are used to fill quadrants with actors.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declare assign-sector-klingon)
+
 (defn init-sector
   "Initialize a sector with the right amount of game related items."
   [game-state]
@@ -155,25 +135,4 @@
                  assoc-in [:current-klingons]
                           (conj (get-in @game-state [:current-klingons]) {:x x :y y :energy 200}))
           (aset sector x y value))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; The functions repair damage to the enterprise during turns.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn- map-function-on-map-vals  [m f]
-  (reduce
-    (fn  [altered-map  [k v]]
-      (assoc altered-map k  (f v)))  {} m))
-
-(defn- repair-system [v]
-  (if (pos? v)
-    (dec v)
-    v))
-
-(defn repair-damage
-  "This function handles repairing damage to the enterprise during every turn."
-  [enterprise]
-  (update-in enterprise [:damage] map-function-on-map-vals repair-system))
-  ; (assoc enterprise
-  ;        :damage
-  ;        (map-function-on-map-vals (:damage enterprise) repair-system)))
 

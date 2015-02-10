@@ -1,6 +1,7 @@
 (ns startrek.nav-test
   (:use midje.sweet)
   (:require [startrek.nav :as n])
+  (:require [startrek.enterprise :as e])
   (:require [startrek.world :as w]))
 
 (facts "We need to verify we only pick valid courses"
@@ -32,7 +33,7 @@
           (n/get-warp-factor) =streams=> [100 10 9] :times 3)))
 
 (facts "Picking a warp factor depends on user selection and ship damage."
-  (let [enterprise (w/reset-enterprise)]
+  (let [enterprise (e/reset-enterprise)]
     (tabular
       (fact "A healthy ship can pick any valid warp factor."
           (n/pick-warp-factor enterprise) => ?result
@@ -43,7 +44,7 @@
             0.1     0.1
             4       4
             8       8))
-  (let [enterprise (assoc-in (w/reset-enterprise) [:damage :warp_engines] 1)]
+  (let [enterprise (assoc-in (e/reset-enterprise) [:damage :warp_engines] 1)]
     (fact "A ship with damaged engines moves at a crawl."
         (n/pick-warp-factor enterprise) => 0.2
           (provided

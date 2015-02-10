@@ -14,17 +14,20 @@
 (defn klingon-dead? [klingon]
   (<= (:energy klingon) 0))
 
-(defn klingon-shot [enterprise klingon]
+(defn- klingon-shot [enterprise klingon]
   (let [h (klingon-shot-strength klingon (-> enterprise :sector))]
     {:hit h :enterprise (update-in enterprise [:shields] - h)}))
 
-(defn klingon-attack [enterprise klingon]
-  (if (klingon-dead? klingon)
+(defn- klingon-attack [enterprise klingon]
+  (if (or (klingon-dead? klingon) (< (:shields enterprise) 0))
     enterprise
     (let [r (klingon-shot enterprise klingon)]
-      (println (format "%3.1f UNIT HIT ON ENTERPRISE FROM SECTOR %d,%d" (:hit r) (:x klingon) (:y klingon)))
-      (println (format "   (%3.1f LEFT)" (max 0 (get-in r [:enterprise :shields]))))
-      (:enterprise r))))
+      (println (format "%3.1f UNIT HIT ON ENTERPRISE FROM SECTOR %d,%d   (%3.1f LEFT)" 
+                     (:hit r)
+                     (:x klingon)
+                     (:y klingon)
+                     (max 0.0 (get-in r [:enterprise :shields]))))
+        (:enterprise r))))
 
 (defn klingon-turn [enterprise klingons]
   (reduce klingon-attack enterprise klingons))
