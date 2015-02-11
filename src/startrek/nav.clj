@@ -28,7 +28,6 @@
 
 (defn pick-warp-factor
   [enterprise]
-  (println " pick-factor => " enterprise)
   (loop []
     (let [factor (select-warp-factor)]
       (cond

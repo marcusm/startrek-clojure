@@ -26,14 +26,16 @@
 (defn new-game-state
   "Create a new world game state. Resets the enterprise and the quadrants."
   [game-state]
-  (defn gen-stardate [] (* 100 (+ 20 (gen-uniform 1 21))))
+  (def stardate (* 100 (+ 20 (gen-uniform 1 21))))
+  (def quads (reset-quadrants))
 
   (reset! game-state
     {:enterprise (reset-enterprise)
-    :quads (reset-quadrants)
+    :quads quads
     :current-sector {}
     :current-klingons []
-    :stardate {:start (gen-stardate) :end 30}}))
+    :starting-klingons (remaining-klingon-count quads)
+    :stardate {:start stardate :current stardate :end 30}}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these methods are used to fill quadrants with actors.

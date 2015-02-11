@@ -1,13 +1,51 @@
 (ns startrek.core
-   (:require [clojure.data.generators :as gen]
+   (:require [clojure.java.io :as io]
+             [clojure.edn :as edn]
+             [clojure.data.generators :as gen]
              [startrek.random :as r]
+             [startrek.klingon :as k]
              [startrek.world :as w])
-   (:gen-class :main true))
+   (:gen-class :main true)
+   (:import jline.Terminal))
+   ; (:import  [jline.console ConsoleReader]))
 
 (def game-state (atom {}))
 
-(defn print-instructions []
-  (println "INSTRUCTIONS"))
+(def pages
+  (->>  "instructions.edn"
+       io/resource
+       slurp
+       edn/read-string
+       (map :page)))
+
+; (defn get-keystroke  []
+;   (flush)
+;   (let  [cr  (ConsoleReader.)
+;          keyint  (.readCharacter cr)]
+;     (println  (format  "Got %d ('%c')!" keyint  (char keyint)))
+;     cr))
+
+; only needed for reading numbers from command line
+(let [m (.getDeclaredMethod clojure.lang.LispReader
+                            "matchNumber"
+                            (into-array [String]))]
+  (.setAccessible m true)
+  (defn parse-number [s]
+    (.invoke m clojure.lang.LispReader (into-array [s]))))
+
+(defn print-instructions [pause]
+  (loop [p pages]
+    (when (seq p)
+      (println (first p))
+      (when (= pause 2)
+        (println "PRESS A KEY TO CONTINUE...  ")
+        ; (let  [cr  (ConsoleReader.)
+        ;        keyint  (.readCharacter cr)]
+        ;       (print keyint))
+
+        (let  [term  (Terminal/getTerminal)]
+          (println  (char(.readCharacter term System/in)))))
+      (recur (rest p)))))
 
 (defn setup-universe []
   (w/new-game-state game-state)
@@ -29,6 +67,40 @@
 (defn library-computer []
   (println "library computer"))
 
+(defn game-over-destroyed [game-state]
+  (println)
+  (println "THE ENTERPRISE HAS BEEN DESTROYED. THE FEDERATION WILL BE CONQUERED")
+  (println (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" (w/remaining-klingon-count (:quads @game-state))))
+  true)
+
+(defn game-over-powerless [game-state]
+  (println "THE ENTERPRISE IS DEAD IN SPACE. IF YOU SURVIVE ALL IMPENDING")
+  (println "ATTACK YOU WILL BE DEMOTED TO THE RANK OF PRIVATE")
+  (let [enterprise (k/klingon-turn (get-in @game-state [:enterprise]) (get-in @game-state [:current-klingons]))]
+    (if (neg? (get-in enterprise [:shields]))
+      (game-over-destroyed game-state)
+      (println (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" 
+                       (w/remaining-klingon-count (:quads @game-state))))))
+  true)
+
+(defn game-over-success [game-state]
+  (println)
+  (println "THE LAST KLINGON BATTLE CRUISER IN THE GALAXY HAS BEEN DESTROYED")
+  (println "THE FEDERATION HAS BEEN SAVED !!!")
+  (println)
+  (let [k (get-in @game-state [:starting-klingons]) 
+        start (get-in @game-state [:stardate :start])
+        current (get-in @game-state [:stardate :current])]
+    (println (format "YOUR EFFICIENCY RATING = %5.2f" (* 1000 (/ k (- start current)))))))
+
+(defn game-over? [game-state]
+  (cond
+    (neg? (get-in @game-state [:enterprise :shields])) (game-over-destroyed game-state)
+    (and (<= (get-in @game-state [:enterprise :shields]) 1)
+         (zero? (get-in @game-state [:enterprise :energy]))) (game-over-powerless game-state)
+    (zero? (w/remaining-klingon-count (:quads @game-state))) (game-over-success game-state)
+    :else false))
+
 (defn command-help []
   (println)
   (println "   0 = SET COURSE")
@@ -44,7 +116,7 @@
 (defn play-game []
   (setup-universe)
   (let [stop-condition (ref false)]
-    (while (and (not (deref stop-condition)))
+    (while (not (deref stop-condition))
       ; check to see if the Enterprise is destroyed
 
       (println "COMMAND")
@@ -62,14 +134,6 @@
           (command-help)
           )))))
 
-; only needed for reading numbers from command line
-(let [m (.getDeclaredMethod clojure.lang.LispReader
-                            "matchNumber"
-                            (into-array [String]))]
-  (.setAccessible m true)
-  (defn parse-number [s]
-    (.invoke m clojure.lang.LispReader (into-array [s]))))
-
 (defn -main [& args]
   (dotimes [i 20]
     (println))
@@ -80,13 +144,12 @@
   (println "ENTER 1 OR 2 FOR INSTRUCTIONS (ENTER 2 TO PAGE) ")
   (let [choice (parse-number (read-line))]
     (if (or (= choice 1) (= choice 2))
-      (print-instructions)))
+      (print-instructions choice)))
 
   ; This is unsafe if the user does not provide an int
   ; for a seed. Need to fix that.
   (println)
   (println "ENTER SEED NUMBER ")
   (let [seed (parse-number (read-line))]
-    (gen/*rnd* seed))
-
-  (play-game))
+    (binding  [gen/*rnd*  (java.util.Random. seed)])
+  (play-game)))
