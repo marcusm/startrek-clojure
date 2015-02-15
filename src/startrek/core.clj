@@ -5,9 +5,7 @@
              [startrek.random :as r]
              [startrek.klingon :as k]
              [startrek.world :as w])
-   (:gen-class :main true)
-   (:import jline.Terminal))
-   ; (:import  [jline.console ConsoleReader]))
+   (:gen-class :main true))
 
 (def game-state (atom {}))
 
@@ -17,13 +15,6 @@
        slurp
        edn/read-string
        (map :page)))
-
-; (defn get-keystroke  []
-;   (flush)
-;   (let  [cr  (ConsoleReader.)
-;          keyint  (.readCharacter cr)]
-;     (println  (format  "Got %d ('%c')!" keyint  (char keyint)))
-;     cr))
 
 ; only needed for reading numbers from command line
 (let [m (.getDeclaredMethod clojure.lang.LispReader
@@ -43,9 +34,9 @@
         ;        keyint  (.readCharacter cr)]
         ;       (print keyint))
 
-        (let  [term  (Terminal/getTerminal)]
-          (println  (char(.readCharacter term System/in)))))
-      (recur (rest p)))))
+        ; (let  [term  (Terminal/getTerminal)]
+        ;   (println  (char(.readCharacter term System/in)))))
+      (recur (rest p))))))
 
 (defn setup-universe []
   (w/new-game-state game-state)
