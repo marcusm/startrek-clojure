@@ -48,3 +48,8 @@
   (let [{:keys [x y]} a-map]
     [x y]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Functions used for indexing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn coord-to-index [coord]
+  (+ (first coord) (* (second coord) dim)))

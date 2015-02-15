@@ -1,6 +1,7 @@
 (ns startrek.nav-test
   (:use midje.sweet)
   (:require [startrek.nav :as n])
+  (:require [startrek.utils :as u])
   (:require [startrek.enterprise :as e])
   (:require [startrek.world :as w]))
 
@@ -50,3 +51,14 @@
           (provided
             (#'n/select-warp-factor) =streams=> [5 6 2 1 0.5 0.2]))))
 
+(facts "Detect if the ship will move out of the sector"
+       (tabular
+         (fact "This ship will leave the sector if a boundary is crossed."
+               (#'n/leave-sector? ?coord) => ?result)
+               ?coord ?result
+               [1 1] falsey
+               [5 5] falsey
+               [8 1] falsey
+               [8 8.5] truthy
+               [0.5 1.2] falsey
+               [0.49 8.2] truthy))

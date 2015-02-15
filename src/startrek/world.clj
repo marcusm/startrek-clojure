@@ -15,12 +15,12 @@
 (defn remaining-klingon-count
   "Returns the number of klingon ships left in the game."
   [quadrants]
-  (reduce + (flatten (map #(map :klingons %) quadrants))))
+  (reduce + (map #(:klingons %) quadrants)))
 
 (defn remaining-starbase-count
   "Returns the number of starbases remaining in the game."
   [quadrants]
-  (reduce + (flatten (map #(map :bases %) quadrants))))
+  (reduce + (map #(:bases %) quadrants)))
 
 ; fetch default game state
 (defn new-game-state
@@ -44,17 +44,19 @@
   "Returns a new quadrants 2d-array that is guaranteed to have at least 1 klingon and 1 starbase."
   []
   (defn create-quadrants []
-    (to-array-2d 
-      (partition  dim
-                 (for  [y  (range dim) x  (range dim)]
-                   {:x x :y y :klingons (assign-quadrant-klingons) :stars (assign-quadrant-stars) :bases (assign-quadrant-starbases)}))))
+    (vec (for [y (range dim) x (range dim)]
+           {:x x 
+            :y y 
+            :klingons (assign-quadrant-klingons) 
+            :stars (assign-quadrant-stars)
+            :bases (assign-quadrant-starbases)})))
 
   (loop []
-  (let [quadrants (create-quadrants)]
-    (cond
-      (<= (remaining-klingon-count quadrants) 0) (recur)
-      (<= (remaining-starbase-count quadrants) 0) (recur)
-      :else quadrants))))
+    (let [quadrants (create-quadrants)]
+      (cond
+        (<= (remaining-klingon-count quadrants) 0) (recur)
+        (<= (remaining-starbase-count quadrants) 0) (recur)
+        :else quadrants))))
 
 (defn- assign-quadrant-klingons
  "Returns 0-3 klingons in a quadrant based on a uniform distribution."
@@ -84,22 +86,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declare assign-sector-klingon)
 
+(defn create-empty-sectors2 []
+  (vec (for [y (range dim) x (range dim)] 0)))
+
 (defn init-sector
   "Initialize a sector with the right amount of game related items."
   [game-state]
   (defn create-empty-sector []
-    (to-array-2d
-      (partition  dim
-                 (for  [y  (range dim) x  (range dim)]  0))))
-  (def quad (aget (:quads @game-state)
-                  (get-in @game-state [:enterprise :quadrant :x])
-                  (get-in @game-state [:enterprise :quadrant :y])))
+    (vec (for [y (range dim) x (range dim)] 0)))
+
+  (def quad (get (:quads @game-state)
+                  (coord-to-index (get-in @game-state [:enterprise :quadrant]))))
   (swap! game-state assoc-in [:current-klingons] [{:x 1 :y 1 :energy 200} {:x 1 :y 2 :energy 200}])
 
   (let [sector (create-empty-sector)]
-    (aset sector
-          (get-in @game-state [:enterprise :sector :x])
-          (get-in @game-state [:enterprise :sector :y]) 
+    (assoc sector
+          (coord-to-index (get-in @game-state [:enterprise :sector]))
           enterprise-id)
 
     (loop [k (:klingons quad)]
@@ -121,20 +123,20 @@
   [sector value]
   (loop []
     (let [x (gen-idx) y (gen-idx)]
-      (if (pos? (aget sector x y ))
+      (if (pos? (get sector (coord-to-index [x y])))
         (recur)
-        (aset sector x y value) ))))
+        (assoc sector (coord-to-index [x y]) value) ))))
 
 (defn- assign-sector-klingon
   "Assign an item in a sector to a location."
   [sector value game-state]
   (loop []
     (let [x (gen-idx) y (gen-idx)]
-      (if (pos? (aget sector x y ))
+      (if (pos? (get sector (coord-to-index [x y])))
         (recur)
         (do
           (swap! game-state
                  assoc-in [:current-klingons]
                           (conj (get-in @game-state [:current-klingons]) {:x x :y y :energy 200}))
-          (aset sector x y value))))))
+          (assoc sector (coord-to-index [x y]) value))))))
 

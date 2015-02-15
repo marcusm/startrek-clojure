@@ -20,8 +20,8 @@
    :energy 3000
    :shields 0
    :is_docked false
-   :quadrant {:x (gen-idx) :y (gen-idx)}
-   :sector {:x (gen-idx) :y (gen-idx)}
+   :quadrant [(gen-idx) (gen-idx)]
+   :sector [(gen-idx) (gen-idx)]
    })
 
 
