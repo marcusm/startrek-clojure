@@ -5,7 +5,8 @@
              [startrek.random :as r]
              [startrek.utils :as u]
              [startrek.klingon :as k]
-             [startrek.world :as w])
+             [startrek.world :as w]
+             [startrek.nav :as n])
    (:gen-class :main true))
 
 (def game-state (atom {}))
@@ -41,9 +42,9 @@
 
 (defn setup-universe []
   (w/new-game-state game-state)
-  (w/init-sector game-state))
+  (w/enter-sector game-state))
 (defn set-course []
-  (println "Set the course"))
+  (n/set-course game-state))
 (defn short-range-scan []
   (println "short range scan"))
 (defn long-range-scan []
@@ -58,6 +59,12 @@
   (println "damage control report"))
 (defn library-computer []
   (println "library computer"))
+
+(defn game-over-out-of-time [game-state]
+  (u/message)
+  (u/message (format "IT IS STARDATE %d" (get-in @game-state [:stardate :current])))
+  (u/message (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" (w/remaining-klingon-count (:quads @game-state))))
+  true)
 
 (defn game-over-destroyed [game-state]
   (u/message)
@@ -91,6 +98,9 @@
     (and (<= (get-in @game-state [:enterprise :shields]) 1)
          (zero? (get-in @game-state [:enterprise :energy]))) (game-over-powerless game-state)
     (zero? (w/remaining-klingon-count (:quads @game-state))) (game-over-success game-state)
+    (> (get-in @game-state [:stardate :current])
+       (+ (get-in @game-state [:stardate :start])
+          (get-in @game-state [:stardate :end]))) (game-over-out-of-time game-state)
     :else false))
 
 (defn command-help []
@@ -110,21 +120,25 @@
   (let [stop-condition (ref false)]
     (while (not (deref stop-condition))
       ; check to see if the Enterprise is destroyed
+      (if (game-over? game-state)
+        (swap! stop-condition true)
+        (do
+          (w/short-range-scan game-state)
 
-      (println "COMMAND")
-      (let [choice (read-line)]
-        (condp = choice
-          "0" (set-course)
-          "1" (short-range-scan)
-          "2" (long-range-scan)
-          "3" (fire-phasers)
-          "4" (fire-torpedoes)
-          "5" (shield-control)
-          "6" (damage-control-report)
-          "7" (library-computer)
-          "q" (dosync (alter stop-condition (fn [_] true)))
-          (command-help)
-          )))))
+          (println "COMMAND")
+          (let [choice (read-line)]
+            (condp = choice
+              "0" (set-course)
+              "1" (short-range-scan)
+              "2" (long-range-scan)
+              "3" (fire-phasers)
+              "4" (fire-torpedoes)
+              "5" (shield-control)
+              "6" (damage-control-report)
+              "7" (library-computer)
+              "q" (dosync (alter stop-condition (fn [_] true)))
+              (command-help)
+              )))))))
 
 (defn -main [& args]
   (dotimes [i 20]
@@ -144,4 +158,6 @@
   (println "ENTER SEED NUMBER ")
   (let [seed (parse-number (read-line))]
     (binding  [gen/*rnd*  (java.util.Random. seed)])
-  (play-game)))
+
+    (with-redefs [u/message println]
+    (play-game))))

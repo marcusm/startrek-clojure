@@ -5,6 +5,135 @@
   (:require [startrek.enterprise :as e])
   (:require [startrek.world :as w]))
 
+(defchecker contains-move? [& expected]
+  (checker [actual]
+           (def expected' (first expected))
+           (every? true? (flatten (conj
+                           (map = (get-in actual [:enterprise :sector])
+                                (get-in expected' [:enterprise :sector]))
+                           (map = (get-in actual [:enterprise :quadrant])
+                                (get-in expected' [:enterprise :quadrant]))
+                           (= 1 (get-in actual [:current-sector (u/coord-to-index (get-in actual [:enterprise :sector]))]))
+                           )))))
+
+(def game-state-a {:current-klingons  []
+    :current-sector  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] 
+    :enterprise 
+    {
+      :damage
+         {:computer_display 0 
+          :damage_control 0 
+          :long_range_sensors 0 
+          :phasers 0 
+          :photon_torpedo_tubes 0 
+          :shields 0 
+          :short_range_sensors 0 
+          :warp_engines 0
+         } 
+      :energy 3000 
+      :is_docked false
+      :photon_torperdoes 10
+      :quadrant  [5 3]
+      :sector  [5 5]
+      :shields 0    
+    }
+    :quads  [{:bases 0 :klingons 0 :stars 3 :x 1 :y 1}
+             {:bases 0 :klingons 0 :stars 8 :x 2 :y 1}
+             {:bases 0 :klingons 0 :stars 4 :x 3 :y 1}
+             {:bases 0 :klingons 1 :stars 4 :x 4 :y 1}
+             {:bases 0 :klingons 0 :stars 2 :x 5 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 6 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 7 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 8 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 1 :y 2}
+             {:bases 0 :klingons 2 :stars 6 :x 2 :y 2}
+             {:bases 0 :klingons 0 :stars 8 :x 3 :y 2}
+             {:bases 0 :klingons 0 :stars 3 :x 4 :y 2}
+             {:bases 0 :klingons 0 :stars 4 :x 5 :y 2}
+             {:bases 0 :klingons 0 :stars 7 :x 6 :y 2}
+             {:bases 0 :klingons 1 :stars 4 :x 7 :y 2}
+             {:bases 0 :klingons 0 :stars 2 :x 8 :y 2}
+             {:bases 0 :klingons 0 :stars 4 :x 1 :y 3}
+             {:bases 0 :klingons 0 :stars 3 :x 2 :y 3}
+             {:bases 0 :klingons 0 :stars 7 :x 3 :y 3}
+             {:bases 0 :klingons 0 :stars 3 :x 4 :y 3}
+             {:bases 0 :klingons 0 :stars 0 :x 5 :y 3}
+             {:bases 0 :klingons 1 :stars 4 :x 6 :y 3}
+             {:bases 0 :klingons 0 :stars 6 :x 7 :y 3}
+             {:bases 0 :klingons 0 :stars 1 :x 8 :y 3}
+             {:bases 0 :klingons 0 :stars 6 :x 1 :y 4}
+             {:bases 0 :klingons 1 :stars 4 :x 2 :y 4}
+             {:bases 0 :klingons 0 :stars 8 :x 3 :y 4}
+             {:bases 0 :klingons 2 :stars 1 :x 4 :y 4}
+             {:bases 0 :klingons 0 :stars 8 :x 5 :y 4}
+             {:bases 0 :klingons 0 :stars 3 :x 6 :y 4}
+             {:bases 0 :klingons 0 :stars 1 :x 7 :y 4}
+             {:bases 0 :klingons 0 :stars 7 :x 8 :y 4}
+             {:bases 0 :klingons 0 :stars 1 :x 1 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 2 :y 5}
+             {:bases 0 :klingons 0 :stars 1 :x 3 :y 5}
+             {:bases 0 :klingons 0 :stars 7 :x 4 :y 5}
+             {:bases 0 :klingons 0 :stars 5 :x 5 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 6 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 7 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 8 :y 5}
+             {:bases 0 :klingons 0 :stars 3 :x 1 :y 6}
+             {:bases 0 :klingons 0 :stars 5 :x 2 :y 6}
+             {:bases 0 :klingons 0 :stars 6 :x 3 :y 6}
+             {:bases 0 :klingons 0 :stars 7 :x 4 :y 6}
+             {:bases 0 :klingons 0 :stars 7 :x 5 :y 6}
+             {:bases 0 :klingons 1 :stars 6 :x 6 :y 6}
+             {:bases 0 :klingons 1 :stars 6 :x 7 :y 6}
+             {:bases 1 :klingons 1 :stars 7 :x 8 :y 6}
+             {:bases 0 :klingons 0 :stars 5 :x 1 :y 7}
+             {:bases 0 :klingons 0 :stars 5 :x 2 :y 7}
+             {:bases 0 :klingons 0 :stars 6 :x 3 :y 7}
+             {:bases 0 :klingons 0 :stars 1 :x 4 :y 7}
+             {:bases 0 :klingons 0 :stars 8 :x 5 :y 7}
+             {:bases 0 :klingons 1 :stars 3 :x 6 :y 7}
+             {:bases 0 :klingons 0 :stars 5 :x 7 :y 7}
+             {:bases 0 :klingons 0 :stars 5 :x 8 :y 7}
+             {:bases 0 :klingons 0 :stars 6 :x 1 :y 8}
+             {:bases 0 :klingons 0 :stars 3 :x 2 :y 8}
+             {:bases 1 :klingons 0 :stars 3 :x 3 :y 8}
+             {:bases 0 :klingons 0 :stars 1 :x 4 :y 8}
+             {:bases 0 :klingons 0 :stars 5 :x 5 :y 8}
+             {:bases 0 :klingons 0 :stars 7 :x 6 :y 8}
+             {:bases 0 :klingons 0 :stars 6 :x 7 :y 8}
+             {:bases 0 :klingons 0 :stars 8 :x 8 :y 8}]
+ :stardate  {:current 3500 :end 30 :start 3500}
+ :starting-klingons 12 }
+)
+
+(facts "Verify the enterprise will move in predictible ways."
+       (tabular
+         (fact "Verify ship will move exactly 1 sector in chosen direction."
+               (n/move (atom game-state-a) ?course ?factor) => ?result)
+               ?course ?factor ?result
+               1 0.1 (contains-move? {:enterprise {:sector [6 5] :quadrant [5 3]}})
+               2 0.2 (contains-move? {:enterprise {:sector [6 6] :quadrant [5 3]}})
+               3 0.1 (contains-move? {:enterprise {:sector [5 6] :quadrant [5 3]}})
+               4 0.2 (contains-move? {:enterprise {:sector [4 6] :quadrant [5 3]}})
+               5 0.1 (contains-move? {:enterprise {:sector [4 5] :quadrant [5 3]}})
+               6 0.2 (contains-move? {:enterprise {:sector [4 4] :quadrant [5 3]}})
+               7 0.1 (contains-move? {:enterprise {:sector [5 4] :quadrant [5 3]}})
+               8 0.2 (contains-move? {:enterprise {:sector [6 4] :quadrant [5 3]}})
+               9 0.1 (contains-move? {:enterprise {:sector [6 5] :quadrant [5 3]}})  )
+       (tabular
+         (fact "Verify ship will move exactly 1 quadrant in chosen direction."
+               (n/move (atom game-state-a) ?course ?factor) => ?result)
+               ?course ?factor ?result
+               1 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [6 3]}})
+               2 1.0 (contains-move? {:enterprise {:sector [3 3] :quadrant [6 4]}})
+               3 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [5 4]}})
+               4 1.0 (contains-move? {:enterprise {:sector [7 3] :quadrant [4 4]}})
+               5 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [4 3]}})
+               6 1.0 (contains-move? {:enterprise {:sector [7 7] :quadrant [4 2]}})
+               7 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [5 2]}})
+               8 1.0 (contains-move? {:enterprise {:sector [3 7] :quadrant [6 2]}})
+               9 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [6 3]}})  
+               ))
+
 (facts "We need to verify we only pick valid courses"
   (fact "Verify a valid course"
       (n/pick-course) => 5

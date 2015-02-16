@@ -3,7 +3,7 @@
    (:require [clojure.math.numeric-tower :as math]))
 
 ;; global constants
-(def dim           9)
+(def dim           8)
 ;; sector map values
 (def enterprise-id 1)
 (def klingon-id    2)
@@ -17,7 +17,7 @@
 ;; randomness wrappers
 (declare gen-idx gen-idx gen-double gen-uniform)
 
-(defn gen-idx [] (gen/uniform 0 dim))
+(defn gen-idx [] (gen/uniform 1 (+ 1 dim)))
 
 (defn gen-double [] (gen/double))
 
@@ -52,7 +52,7 @@
 ;; Functions used for indexing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn coord-to-index [coord]
-  (+ (first coord) (* (second coord) dim)))
+  (+ (dec (first coord)) (* (dec (second coord)) dim)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions used for text output

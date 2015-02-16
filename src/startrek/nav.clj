@@ -2,6 +2,7 @@
    (:require [startrek.utils :as u])
    (:require [startrek.enterprise :as e])
    (:require [startrek.klingon :as k])
+   (:require [startrek.world :as w])
    (:require [clojure.math.numeric-tower :as math]))
 
 (declare get-course get-warp-factor pick-course pick-warp-factor)
@@ -18,7 +19,7 @@
    [1 1]   ; dir 8: right and down
    [1 0]]) ; dir 9: same as dir 1
 
-(defn get-course [] 5)
+(defn get-course [] 7)
 (defn get-warp-factor [] 5)
 
 (defn pick-course
@@ -59,7 +60,7 @@
     (pos? (get sector (u/coord-to-index p)))))
 
 (defn- set-sector-position [game-state factor coord]
-  (let [e {:sector coord
+  (let [e {:sector (vec (map #(math/round %) coord))
            :energy (- (get-in @game-state [:enterprise :energy])
                       (+ -5 (* 8 (int factor))))}]
   (swap! game-state update-in [:enterprise] merge e))
@@ -69,43 +70,87 @@
 (defn- bad-nav [game-state factor coord inc-coord]
   (let [p (map math/round (map - coord inc-coord))]
     (u/message "WARP ENGINES SHUTDOWN AT SECTOR " (seq coord) " DUE TO BAD NAVIGATION")
-    (set-sector-position game-state factor coord)))
+    (set-sector-position game-state factor p)))
 
-(defn warp-travel-distance [enterprise factor inc-coord]
-  (map + (map #(* 8 %) (get-in enterprise [:quadrant]))
+(defn warp-travel-distance [enterprise factor dir-vec]
+  ; (println enterprise)
+  ; (println factor)
+  ; (println dir-vec)
+
+  (vec (map + (map #(* 8 %) (get-in enterprise [:quadrant]))
          (get-in enterprise [:sector])
-         (map #(* (* 8 (int factor)) %) inc-coord)))
+         (map #(* (* 8 factor) %) dir-vec))))
 
-(defn- leave-sector [game-state factor coord inc-coord]
+(defn enter-sector [game-state]
+  ; ensure good sector/quadrant coords
+  (let [sector (->> (get-in @game-state [:enterprise :sector])
+                            (map #(max % 1))
+                            (map #(min % 8)))
+        quadrant (->> (get-in @game-state [:enterprise :quadrant])
+                              (map #(max % 1))
+                              (map #(min % 8)))]
+    (swap! game-state update-in [:enterprise] merge {:sector sector :quadrant quadrant})
+    (if (and (pos? (get-in @game-state [:quads (u/coord-to-index quadrant) :klingons]))
+             (> (get-in @game-state [:enterprise :shields] 200)))
+      (u/message "COMBAT AREA      CONDITION RED")
+      (u/message "   SHIELDS DANGEROUSLY LOW"))
+    (w/init-sector game-state)))
+
+
+(defn- leave-sector [game-state factor coord dir-vec]
+  ; (println "leaving quadrant")
   (let [place (warp-travel-distance (get-in @game-state [:enterprise])
                                     factor
-                                    inc-coord)]
-    (def new-quad (map #(int (/ 8 %)) place))
-    (def new-sector (map #(math/round %) (- place
-                                            (map #(* 8 %) new-quad))))
-    ))
+                                    dir-vec)
+        energy (- (get-in @game-state [:enterprise :energy])
+                  (+ -5 (* 8 (int factor))))]
+    (def q (vec (map #(int (/ % 8)) place)))
+    (def s (vec (map #(math/round %) (map - place (vec (map #(* 8 %) q))))))
+
+    ; (println "place " place "q " q "s " s)
+
+    (with-local-vars [new-quad q new-sector s]
+      (when (zero? (first @new-sector))
+        (var-set new-sector (assoc @new-sector 0 8))
+        (var-set new-quad (update-in @new-quad [0] dec)))
+      (when (zero? (second @new-sector))
+        (var-set new-sector (assoc @new-sector 1 8))
+        (var-set new-quad (update-in @new-sector [1] dec)))
+      (def updates {:sector @new-sector :quadrant @new-quad :energy energy})
+      (swap! game-state update-in [:enterprise] merge updates)
+      (when (> factor 1)
+        (swap! game-state update-in [:stardate :start] inc))))
+  (enter-sector game-state))
 
 (defn move [game-state course factor]
   (let [n (int (* factor 8))
-        coord (get-in @game-state [:enterprise :coord])
-        sector (get-in @game-state [:current-sector])
-        course' (int course)]
+        coord (get-in @game-state [:enterprise :sector])
+        course' (- course 1)]
     ; clear current enterprise coord
-    (aset sector (u/coord-to-index coord))
-    (let [inc-cord (map + (course-vector course')
-                        (map (partial * (- course course'))
-                             (map - (course-vector (+ course' 1)) (course-vector course'))))]
-      (loop [p (+ coord inc-cord) i n]
+    (swap! game-state assoc-in [:current-sector (u/coord-to-index coord)] 0)
+
+    ;; travel direction is based on radian direction
+    (let [polar (* Math/PI (/ course' 4))
+          dir-vec [(Math/cos polar) (Math/sin polar)]]
+      (loop [p (map + coord dir-vec) i n]
         (cond
-          (leave-sector? p) (leave-sector )
-          (hit-item? p) (bad-nav game-state factor p inc-cord)
-          (zero? i) (set-sector-position game-state factor p)
-          :else (recur p (dec i))))
+          (leave-sector? p) (leave-sector game-state factor coord dir-vec)
+          (hit-item? (get-in @game-state [:current-sector]) p) (bad-nav game-state factor p dir-vec)
+          (<= i 0 ) (set-sector-position game-state factor p)
+          :else (recur (map + p dir-vec) (dec i))))
+
+      (swap! game-state assoc-in [:current-sector 
+                                  (u/coord-to-index 
+                                    (get-in @game-state [:enterprise :sector]))] 
+             1)
+      (merge @game-state {:quads []})
       )))
 
 (defn set-course [game-state]
   (let [course (pick-course) factor (pick-warp-factor (:enterprise @game-state))]
-    (assoc-in @game-state [:enterprise] (k/klingon-turn (:enterprise @game-state) (:current-klingons @game-state)))
+    (assoc-in @game-state [:enterprise] (k/klingon-turn 
+                                          (:enterprise @game-state) 
+                                          (:current-klingons @game-state)))
     (when-not (neg? (get-in @game-state [:enterprise :shields]))
       (e/enterprise-update game-state)
       (move game-state course factor))))
