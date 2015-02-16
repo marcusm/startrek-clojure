@@ -22,7 +22,7 @@
   (if (or (klingon-dead? klingon) (< (:shields enterprise) 0))
     enterprise
     (let [r (klingon-shot enterprise klingon)]
-      (println (format "%3.1f UNIT HIT ON ENTERPRISE FROM SECTOR %d,%d   (%3.1f LEFT)" 
+      (u/message (format "%3.1f UNIT HIT ON ENTERPRISE FROM SECTOR %d,%d   (%3.1f LEFT)" 
                      (:hit r)
                      (:x klingon)
                      (:y klingon)

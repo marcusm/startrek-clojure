@@ -53,3 +53,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn coord-to-index [coord]
   (+ (first coord) (* (second coord) dim)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Functions used for text output
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def messages (atom []))
+
+(defn message 
+  ([] (swap! messages conj ""))
+  ([text & rest] (swap! messages conj text rest)))

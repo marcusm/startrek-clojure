@@ -3,6 +3,7 @@
              [clojure.edn :as edn]
              [clojure.data.generators :as gen]
              [startrek.random :as r]
+             [startrek.utils :as u]
              [startrek.klingon :as k]
              [startrek.world :as w])
    (:gen-class :main true))
@@ -59,30 +60,30 @@
   (println "library computer"))
 
 (defn game-over-destroyed [game-state]
-  (println)
-  (println "THE ENTERPRISE HAS BEEN DESTROYED. THE FEDERATION WILL BE CONQUERED")
-  (println (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" (w/remaining-klingon-count (:quads @game-state))))
+  (u/message)
+  (u/message "THE ENTERPRISE HAS BEEN DESTROYED. THE FEDERATION WILL BE CONQUERED")
+  (u/message (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" (w/remaining-klingon-count (:quads @game-state))))
   true)
 
 (defn game-over-powerless [game-state]
-  (println "THE ENTERPRISE IS DEAD IN SPACE. IF YOU SURVIVE ALL IMPENDING")
-  (println "ATTACK YOU WILL BE DEMOTED TO THE RANK OF PRIVATE")
+  (u/message "THE ENTERPRISE IS DEAD IN SPACE. IF YOU SURVIVE ALL IMPENDING")
+  (u/message "ATTACK YOU WILL BE DEMOTED TO THE RANK OF PRIVATE")
   (let [enterprise (k/klingon-turn (get-in @game-state [:enterprise]) (get-in @game-state [:current-klingons]))]
     (if (neg? (get-in enterprise [:shields]))
       (game-over-destroyed game-state)
-      (println (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" 
+      (u/message (format "THERE ARE STILL %s KLINGON BATTLE CRUISERS" 
                        (w/remaining-klingon-count (:quads @game-state))))))
   true)
 
 (defn game-over-success [game-state]
-  (println)
-  (println "THE LAST KLINGON BATTLE CRUISER IN THE GALAXY HAS BEEN DESTROYED")
-  (println "THE FEDERATION HAS BEEN SAVED !!!")
-  (println)
+  (u/message)
+  (u/message "THE LAST KLINGON BATTLE CRUISER IN THE GALAXY HAS BEEN DESTROYED")
+  (u/message "THE FEDERATION HAS BEEN SAVED !!!")
+  (u/message)
   (let [k (get-in @game-state [:starting-klingons]) 
         start (get-in @game-state [:stardate :start])
         current (get-in @game-state [:stardate :current])]
-    (println (format "YOUR EFFICIENCY RATING = %5.2f" (* 1000 (/ k (- start current)))))))
+    (u/message (format "YOUR EFFICIENCY RATING = %5.2f" (* 1000 (/ k (- start current)))))))
 
 (defn game-over? [game-state]
   (cond

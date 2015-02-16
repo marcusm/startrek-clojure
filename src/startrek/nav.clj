@@ -47,7 +47,7 @@
       (cond
         (and (pos? (get-in enterprise [:damage :warp_engines]))
              (> factor 0.2))
-        (do (println "WARP ENGINES ARE DAMAGED, MAXIMUM SPEED = WARP .2") (recur))
+        (do (u/message "WARP ENGINES ARE DAMAGED, MAXIMUM SPEED = WARP .2") (recur))
         :else factor))))
 
 (defn- leave-sector? [coord]
@@ -59,7 +59,6 @@
     (pos? (get sector (u/coord-to-index p)))))
 
 (defn- set-sector-position [game-state factor coord]
-  (println (get-in @game-state [:enterprise]))
   (let [e {:sector coord
            :energy (- (get-in @game-state [:enterprise :energy])
                       (+ -5 (* 8 (int factor))))}]
@@ -69,7 +68,7 @@
 
 (defn- bad-nav [game-state factor coord inc-coord]
   (let [p (map math/round (map - coord inc-coord))]
-    (println "WARP ENGINES SHUTDOWN AT SECTOR " (seq coord) " DUE TO BAD NAVIGATION")
+    (u/message "WARP ENGINES SHUTDOWN AT SECTOR " (seq coord) " DUE TO BAD NAVIGATION")
     (set-sector-position game-state factor coord)))
 
 (defn warp-travel-distance [enterprise factor inc-coord]
