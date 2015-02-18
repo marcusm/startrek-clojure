@@ -81,7 +81,7 @@
          (get-in enterprise [:sector])
          (map #(* (* 8 factor) %) dir-vec))))
 
-(defn enter-sector [game-state]
+(defn enter-quadrant [game-state]
   ; ensure good sector/quadrant coords
   (let [sector (->> (get-in @game-state [:enterprise :sector])
                             (map #(max % 1))
@@ -97,7 +97,7 @@
     (w/init-sector game-state)))
 
 
-(defn- leave-sector [game-state factor coord dir-vec]
+(defn- leave-quadrant [game-state factor coord dir-vec]
   ; (println "leaving quadrant")
   (let [place (warp-travel-distance (get-in @game-state [:enterprise])
                                     factor
@@ -120,7 +120,7 @@
       (swap! game-state update-in [:enterprise] merge updates)
       (when (> factor 1)
         (swap! game-state update-in [:stardate :start] inc))))
-  (enter-sector game-state))
+  (enter-quadrant game-state))
 
 (defn move [game-state course factor]
   (let [n (int (* factor 8))
@@ -134,7 +134,7 @@
           dir-vec [(Math/cos polar) (Math/sin polar)]]
       (loop [p (map + coord dir-vec) i n]
         (cond
-          (leave-sector? p) (leave-sector game-state factor coord dir-vec)
+          (leave-sector? p) (leave-quadrant game-state factor coord dir-vec)
           (hit-item? (get-in @game-state [:current-sector]) p) (bad-nav game-state factor p dir-vec)
           (<= i 0 ) (set-sector-position game-state factor p)
           :else (recur (map + p dir-vec) (dec i))))
