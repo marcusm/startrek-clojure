@@ -7,19 +7,6 @@
 
 (declare get-course get-warp-factor pick-course pick-warp-factor)
 
-(def course-vector
-  [[]
-   [1 0]   ; dir 1: right
-   [1 -1]  ; dir 2: right and up
-   [0 -1]  ; dir 3: up
-   [-1 -1] ; dir 4: left and up
-   [-1 0]  ; dir 5: left
-   [-1 1]  ; dir 6: left and down
-   [0 -1]  ; dir 7: down
-   [1 1]   ; dir 8: right and down
-   [1 0]]) ; dir 9: same as dir 1
-
-(defn get-course [] 7)
 (defn get-warp-factor [] 5)
 
 (defn pick-course
@@ -67,8 +54,8 @@
   (when (> factor 1)
     (swap! game-state update-in [:stardate :start] + 1)))
 
-(defn- bad-nav [game-state factor coord inc-coord]
-  (let [p (map math/round (map - coord inc-coord))]
+(defn- bad-nav [game-state factor coord dir-vec]
+  (let [p (map math/round (map - coord dir-vec))]
     (u/message "WARP ENGINES SHUTDOWN AT SECTOR " (seq coord) " DUE TO BAD NAVIGATION")
     (set-sector-position game-state factor p)))
 
@@ -116,8 +103,9 @@
       (when (zero? (second @new-sector))
         (var-set new-sector (assoc @new-sector 1 8))
         (var-set new-quad (update-in @new-sector [1] dec)))
-      (def updates {:sector @new-sector :quadrant @new-quad :energy energy})
+      (def updates {:sector (vec @new-sector) :quadrant (vec @new-quad) :energy energy})
       (swap! game-state update-in [:enterprise] merge updates)
+      ; (println "enterprise =>" (get-in @game-state [:enterprise]))
       (when (> factor 1)
         (swap! game-state update-in [:stardate :start] inc))))
   (enter-quadrant game-state))

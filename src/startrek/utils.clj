@@ -48,6 +48,9 @@
   (let [{:keys [x y]} a-map]
     [x y]))
 
+(defn point-2-str [point]
+  (format "%d,%d" (first point) (second point)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions used for indexing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

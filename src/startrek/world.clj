@@ -40,6 +40,9 @@
   [quadrants]
   (reduce + (map #(:bases %) quadrants)))
 
+(defn create-empty-lrs-history []
+  (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] {:x x :y y})))
+
 ; fetch default game state
 (defn new-game-state
   "Create a new world game state. Resets the enterprise and the quadrants."
@@ -50,8 +53,9 @@
   (reset! game-state
     {:enterprise (reset-enterprise)
     :quads quads
-    :current-sector {}
+    :current-sector []
     :current-klingons []
+    :lrs-history (create-empty-lrs-history)
     :starting-klingons (remaining-klingon-count quads)
     :stardate {:start stardate :current stardate :end 30}}))
 
@@ -103,14 +107,12 @@
   (u/message (get display-field 0))
   (u/message (format "%s STARDATE %d" (get display-field 1) (get-in @game-state [:stardate :current])))
   (u/message (format "%s CONDITION %s" (get display-field 2) status))
-  (u/message (format "%s QUADRANT (%d,%d)" 
+  (u/message (format "%s QUADRANT %s" 
                      (get display-field 3) 
-                     (first (get-in @game-state [:enterprise :quadrant]))
-                     (second (get-in @game-state [:enterprise :quadrant]))))
-  (u/message (format "%s SECTOR   (%d,%d)" 
+                     (u/point-2-str (get-in @game-state [:enterprise :quadrant]))))
+  (u/message (format "%s SECTOR   %s" 
                      (get display-field 4) 
-                     (first (get-in @game-state [:enterprise :sector]))
-                     (second (get-in @game-state [:enterprise :sector]))))
+                     (u/point-2-str (get-in @game-state [:enterprise :sector]))))
   (u/message (format "%s ENERGY    %d" 
                      (get display-field 5) 
                      (get-in @game-state [:enterprise :energy])))
@@ -120,8 +122,7 @@
   (u/message (format "%s PHOTOTN TORPEDOS %d" 
                      (get display-field 7) 
                      (get-in @game-state [:enterprise :photon_torperdoes])))
-  (u/message "-=--=--=--=--=--=--=--=-")
-  )
+  (u/message "-=--=--=--=--=--=--=--=-"))
 
 (defn short-range-scan [game-state]
   (with-local-vars [condition 3]
@@ -134,6 +135,44 @@
     (if (pos? (get-in @game-state [:enterprise :damage :short_range_sensors]))
       (u/message "\n*** SHORT RANGE SENSORS ARE OUT ***\n")
       (display-scan game-state condition))))
+
+(defn lrs-points [quadrant]
+  (def valid-idx (apply sorted-set (range 1 (inc dim))))
+  (let [xmin (dec (first quadrant)) 
+        xmax (+ 2 (first quadrant))
+        ymin (dec (second quadrant))
+        ymax (+ 2 (second quadrant))]
+    (for [y (range ymin ymax)]
+      (vec
+        (for [x (range xmin xmax)]
+          (if (and (contains? valid-idx x) (contains? valid-idx y))
+            [x y]
+            []))))))
+
+(defn lrs-row [game-state row]
+  (->> row
+       (map #(if (empty? %) -1 (u/coord-to-index %)))
+       (map #(if (< % 0) {} (get-in @game-state [:quads %])))
+       (map #(if (empty? %) 
+               "000" 
+               (do 
+                 (swap! game-state assoc-in [:lrs-history (u/coord-to-index [(:x %) (:y %)])] %)
+                 (format "%d%d%d" (:bases %) (:klingons %) (:stars %)))))))
+
+(defn long-range-scan [game-state]
+  (if (neg? (get-in @game-state [:enterprise :damage :long_range_sensors]))
+    (u/message "LONG RANGE SENSORS ARE INOPERABLE")
+    (do 
+      (def q (get-in @game-state [:enterprise :quadrant]))
+      (u/message "LONG RANGE SENSOR SCAN FOR QUADRANT" (u/point-2-str q))
+      (def scan (lrs-points q))
+
+      (println "-------------------")
+      (println "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
+      (println "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
+      (println "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
+      (println "-------------------")
+      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these methods are used to fill quadrants with actors.
