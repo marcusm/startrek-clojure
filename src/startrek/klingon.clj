@@ -7,7 +7,7 @@
 (defn- klingon-shot-strength
   [klingon enterprise]
   (* (/ (get-in klingon [:energy])
-        (euclidean-distance (strip-x-y klingon) (strip-x-y enterprise)))
+        (euclidean-distance (strip-x-y klingon) enterprise))
      2
      (gen-double)))
 

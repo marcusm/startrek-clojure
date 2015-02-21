@@ -108,6 +108,8 @@
       ; (println "enterprise =>" (get-in @game-state [:enterprise]))
       (when (> factor 1)
         (swap! game-state update-in [:stardate :start] inc))))
+
+  (swap! game-state assoc-in [:current-klingons] [])
   (enter-quadrant game-state))
 
 (defn move [game-state course factor]

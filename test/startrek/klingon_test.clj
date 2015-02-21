@@ -11,12 +11,12 @@
                    enterprise {:is_docked false
                                :shields 100
                                :energy 1000
-                               :sector {:x 6 :y 7}
-                               :quadrant {:x 2 :y 3}}]
+                               :sector [6 7]
+                               :quadrant [2 3]}]
                (k/klingon-turn enterprise current-klingons) => (just {:energy 1000
                                                                       :is_docked false
-                                                                      :quadrant {:x 2 :y 3}
-                                                                      :sector {:x 6 :y 7}
+                                                                      :quadrant [2 3]
+                                                                      :sector [6 7]
                                                                       :shields pos?})
                (provided
                  (gen-double) =streams=> [0.55 0.25])))
@@ -27,12 +27,12 @@
                    enterprise {:is_docked false
                                :shields 10
                                :energy 100
-                               :sector {:x 6 :y 7}
-                               :quadrant {:x 2 :y 3}}]
+                               :sector [6 7]
+                               :quadrant [2 3]}]
                (k/klingon-turn enterprise current-klingons) => (just {:energy 100
                                                                       :is_docked false
-                                                                      :quadrant {:x 2 :y 3}
-                                                                      :sector {:x 6 :y 7}
+                                                                      :quadrant [2 3]
+                                                                      :sector [6 7]
                                                                       :shields neg?})
                (provided
                  (gen-double) =streams=> [0.45 0.25]))))
@@ -50,8 +50,8 @@
                    enterprise {:is_docked false
                                :shields 100
                                :energy 1000
-                               :sector {:x 6 :y 7}
-                               :quadrant {:x 2 :y 3}}]
+                               :sector [6 7]
+                               :quadrant [2 3]}]
                (#'k/klingon-shot enterprise klingon) => (just {:hit pos? :enterprise map?})
                (provided
                  (gen-double) =streams=> [0.55 0.25]))))

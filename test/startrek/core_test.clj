@@ -11,8 +11,8 @@
                    {:enterprise {:is_docked false
                                  :shields shields?
                                  :energy energy?
-                                 :sector {:x 6 :y 7}
-                                 :quadrant {:x 2 :y 3}}
+                                 :sector [6 7]
+                                 :quadrant [2 3]}
                     :quads {}
                     :current-sector {}
                     :current-klingons [{:x 2 :y 8 :energy 200} {:x 3 :y 8 :energy 0} {:x 3 :y 8 :energy 200}]
@@ -33,8 +33,8 @@
                    {:enterprise {:is_docked false
                                  :shields shields?
                                  :energy energy?
-                                 :sector {:x 6 :y 7}
-                                 :quadrant {:x 2 :y 3}}
+                                 :sector [6 7]
+                                 :quadrant [2 3]}
                     :quads {}
                     :current-sector {}
                     :current-klingons []

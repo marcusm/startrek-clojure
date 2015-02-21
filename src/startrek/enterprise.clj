@@ -1,6 +1,12 @@
-(ns startrek.enterprise
-   (:require [startrek.utils :as u :refer :all]))
+ 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Fire Phasers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(ns startrek.enterprise
+   (:require [startrek.random :as r])
+   (:require [startrek.utils :as u :refer :all])
+   (:require [startrek.klingon :as k]))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; These methods are used to reset and initialize the world.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -23,9 +29,76 @@
    :quadrant [(gen-idx) (gen-idx)]
    :sector [(gen-idx) (gen-idx)]
    })
+(defn pick-phaser-power [] 200)
+
+(defn ask-phaser-power [energy pick-power]
+      (u/message (format "PHASERS LOCKED ON TARGET.  ENERGY AVAILABLE = %s" energy))
+      (u/message "NUMBER OF UNITS TO FIRE ");
+      (pick-power))
+
+(defn select-phaser-power [energy]
+  (loop [power (ask-phaser-power energy pick-phaser-power)]
+    (if (or (neg? power) (pos? (- energy power)))
+      power
+      (recur (ask-phaser-power energy pick-phaser-power)))))
+
+(defn destroy-klingon [game-state klingon]
+  (let [p [(:x klingon) (:y klingon)]]
+    (u/message (format "*** KLINGON AT SECTOR %s DESTROYED ***" u/point-2-str p))
+    (swap! game-state assoc-in [:current-sector (u/coord-to-index p)] 0)
+
+    (swap! game-state update-in [:quads 
+                                 (u/coord-to-index (get-in @game-state [:enterprise :quadrant]))
+                                 :klingons] - 1))
+  (swap! game-state update-in [:starting-klingons] dec)
+  nil)
+
+(defn enterprise-attack [game-state power k-count klingon]
+  (let [p [(:x klingon) (:y klingon)]
+        h (-> @power
+              (/ k-count
+                 (u/euclidean-distance
+                   (get-in @game-state [:enterprise :sector])
+                   p))
+              (* 2 (r/gen-double)))
+        z (max 0.0 (- (:energy klingon) h))]
+    
+    (println (format "%f UNIT HIT ON KLINGON AT SECTOR %s\n   (%f LEEFT)"
+                     h
+                     (u/point-2-str p)
+                     z))
+    (assoc klingon :energy z)))
 
 
-   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn fire-phasers [game-state]
+  (when (pos? (get-in @game-state [:enterprise :damage :computer_display]))
+    (u/message " COMPUTER FAILURE HAMPERS ACCURACY"))
+  (def power (atom (select-phaser-power (get-in @game-state [:enterprise :energy]))))
+  (swap! game-state update-in [:enterprise :energy] - @power)
+  (k/klingon-turn 
+    (get-in @game-state [:enterprise])
+    (get-in @game-state [:current-klingons]))
+
+  (when-not (neg? (get-in @game-state [:enterprise :shields]))
+    (when (neg? (get-in @game-state [:enterprise :damage :computer_display]))
+      (swap! power update * (r/gen-double)))
+
+    (def k-count (count (get-in @game-state [:current-klingons])))
+    
+    (swap! game-state assoc-in [:current-klingons] 
+           (->> (get-in @game-state [:current-klingons])
+                (map #(enterprise-attack game-state power k-count %))
+                (map #(if (pos? (:energy %)) % (destroy-klingon game-state %)))
+                (reduce conj)
+                (vec)))))
+
+(defn fire-phasers-command [game-state]
+  (cond
+    (empty? (get-in @game-state [:current-klingons])) (u/message "SHORT RANGE SENSORS REPORT NO KLINGONS IN THIS QUADRANT")
+    (neg? (get-in @game-state [:enterprise :damage :phasers])) (u/message "PHASER CONTROL IS DISABLED")
+    :else (fire-phasers game-state)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The functions repair damage to the enterprise during turns.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def damage-station-map
