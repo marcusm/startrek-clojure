@@ -22,8 +22,8 @@
            (and
              (= (get-in @actual [:enterprise :energy])
                 (get-in expected' [:enterprise :energy]))
-             (= (get-in @actual [:enterprise :photon_torperdoes])
-                (get-in expected' [:enterprise :photon_torperdoes]))
+             (= (get-in @actual [:enterprise :photon_torpedoes])
+                (get-in expected' [:enterprise :photon_torpedoes]))
              (= 1 (count (get-in @actual [:current-klingons])))
              (zero? (get-in @actual [:current-sector (u/coord-to-index [4 3])])))
            ))
@@ -44,7 +44,7 @@
          } 
       :energy 2000 
       :is_docked false
-      :photon_torperdoes 10
+      :photon_torpedoes 10
       :quadrant  [4 1]
       :sector  [1 1]
       :shields 500    
@@ -122,7 +122,7 @@
 ;        (fact "We can destroy a klingon."
 ;              (e/fire-phasers-command (atom game-state-e)) => (check-shots-fired? 
 ;                                                                {:enterprise {:energy 1500 
-;                                                                              :photon_torperdoes 10}})
+;                                                                              :photon_torpedoes 10}})
 ;              (provided
 ;                (e/pick-phaser-power) => 500
 ;                (r/gen-double) => 0.5)))
@@ -131,7 +131,7 @@
        (fact "We can destroy a klingon."
              (e/fire-torpedoes-command (atom game-state-e)) => (check-shots-fired? 
                                                                  {:enterprise {:energy 2000
-                                                                               :photon_torperdoes 9}})
+                                                                               :photon_torpedoes 9}})
              (provided
                (e/pick-torpedo-course) => 1.75)))
 

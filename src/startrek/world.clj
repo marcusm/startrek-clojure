@@ -81,7 +81,7 @@
     (init-sector game-state)))
 
 (defn- dock [game-state]
-    (swap! game-state update-in [:enterprise] merge {:energy 3000 :photon_torperdoes 10 :shields 0})
+    (swap! game-state update-in [:enterprise] merge {:energy 3000 :photon_torpedoes 10 :shields 0})
     (u/message "SHIELDS DROPPED FOR DOCKING PURPOSES"))
 
 (defn display-scan [game-state condition]
@@ -121,7 +121,7 @@
                      (get-in @game-state [:enterprise :shields])))
   (u/message (format "%s PHOTOTN TORPEDOS %d" 
                      (get display-field 7) 
-                     (get-in @game-state [:enterprise :photon_torperdoes])))
+                     (get-in @game-state [:enterprise :photon_torpedoes])))
   (u/message "-=--=--=--=--=--=--=--=-"))
 
 (defn short-range-scan [game-state]

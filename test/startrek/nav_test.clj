@@ -32,7 +32,7 @@
          } 
       :energy 3000 
       :is_docked false
-      :photon_torperdoes 10
+      :photon_torpedoes 10
       :quadrant  [5 3]
       :sector  [5 5]
       :shields 0    

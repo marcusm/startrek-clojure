@@ -17,7 +17,7 @@
     :warp_engines 0
     :photon_torpedo_tubes 0
     :shields 0}
-   :photon_torperdoes 10
+   :photon_torpedoes 10
    :energy 3000
    :shields 0
    :is_docked false
@@ -133,7 +133,7 @@
 
 (defn fire-torpedoes [game-state]
   (def course (dec (select-torpedo-course)))
-  (swap! game-state update-in [:enterprise :photon_torperdoes] dec)
+  (swap! game-state update-in [:enterprise :photon_torpedoes] dec)
 
   (let [polar (* Math/PI (/ course 4))
         dir-vec [(Math/cos polar) (Math/sin polar)]
@@ -156,7 +156,7 @@
 (defn fire-torpedoes-command [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :photon_torpedo_tubes]))
     (u/message "PHOTON TUBES ARE NOT OPERATIONAL")
-    (if (pos? (get-in @game-state [:enterprise :photon_torperdoes]))
+    (if (pos? (get-in @game-state [:enterprise :photon_torpedoes]))
       (fire-torpedoes game-state)
       (u/message "ALL PHOTON TORPEDOES EXPENDED"))))
 
