@@ -102,7 +102,7 @@
              (> (get-in @game-state [:enterprise :shields] 200)))
       (u/message "COMBAT AREA      CONDITION RED")
       (u/message "   SHIELDS DANGEROUSLY LOW"))
-    (w/init-sector game-state)))
+    (w/place-quadrant game-state)))
 
 (defn- leave-quadrant [game-state factor coord dir-vec]
   ; (println "leaving quadrant")

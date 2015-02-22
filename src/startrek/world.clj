@@ -6,8 +6,60 @@
 ;; populating quadrants
 (declare assign-quadrant-klingons assign-quadrant-starbases assign-quadrant-stars reset-quadrants)
 
-;; populating sectors
-(declare assign-sector-item init-sector)
+;; placing current quadrant items
+(declare assign-sector-item assign-sector-klingon place-quadrant)
+
+;; scanner tech
+(declare lrs-row lrs-points create-empty-lrs-history display-scan)
+
+;; misc functions
+(declare remaining-klingon-count is-docked? dock)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Public commands intended to be exported by this namespace
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; fetch default game state
+(defn new-game-state
+  "Create a new world game state. Resets the enterprise and the quadrants."
+  [game-state]
+  (def stardate (* 100 (+ 20 (gen-uniform 1 21))))
+  (def quads (reset-quadrants))
+
+  (reset! game-state
+    {:enterprise (reset-enterprise)
+    :quads quads
+    :current-sector []
+    :current-klingons []
+    :lrs-history (create-empty-lrs-history)
+    :starting-klingons (remaining-klingon-count quads)
+    :stardate {:start stardate :current stardate :end 30}}))
+
+(defn short-range-scan-command [game-state]
+  (with-local-vars [condition 3]
+    (cond
+      (is-docked? game-state) (dock game-state)
+      (pos? (count (get-in @game-state [:current-klingons]))) (var-set condition 2)
+      (< 300 (get-in @game-state [:enterprise :energy])) (var-set condition 1)
+      :else (var-set condition 0))
+
+    (if (pos? (get-in @game-state [:enterprise :damage :short_range_sensors]))
+      (u/message "\n*** SHORT RANGE SENSORS ARE OUT ***\n")
+      (display-scan game-state condition))))
+
+(defn long-range-scan-command [game-state]
+  (if (neg? (get-in @game-state [:enterprise :damage :long_range_sensors]))
+    (u/message "LONG RANGE SENSORS ARE INOPERABLE")
+    (do 
+      (def q (get-in @game-state [:enterprise :quadrant]))
+      (u/message "LONG RANGE SENSOR SCAN FOR QUADRANT" (u/point-2-str q))
+      (def scan (lrs-points q))
+
+      (println "-------------------")
+      (println "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
+      (println "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
+      (println "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
+      (println "-------------------")
+      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; These methods are used to check on the current world state.
@@ -43,24 +95,8 @@
 (defn create-empty-lrs-history []
   (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] {:x x :y y})))
 
-; fetch default game state
-(defn new-game-state
-  "Create a new world game state. Resets the enterprise and the quadrants."
-  [game-state]
-  (def stardate (* 100 (+ 20 (gen-uniform 1 21))))
-  (def quads (reset-quadrants))
-
-  (reset! game-state
-    {:enterprise (reset-enterprise)
-    :quads quads
-    :current-sector []
-    :current-klingons []
-    :lrs-history (create-empty-lrs-history)
-    :starting-klingons (remaining-klingon-count quads)
-    :stardate {:start stardate :current stardate :end 30}}))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; All of these methods are used for entering a new sector
+;; All of these methods are used for entering a new quadrant
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn enter-sector [game-state]
   ; ensure good sector/quadrant coords
@@ -78,7 +114,7 @@
              (> (get-in @game-state [:enterprise :shields] 200)))
       (u/message "COMBAT AREA      CONDITION RED")
       (u/message "   SHIELDS DANGEROUSLY LOW"))
-    (init-sector game-state)))
+    (place-quadrant game-state)))
 
 (defn- dock [game-state]
     (swap! game-state update-in [:enterprise] merge {:energy 3000 :photon_torpedoes 10 :shields 0})
@@ -124,18 +160,6 @@
                      (get-in @game-state [:enterprise :photon_torpedoes])))
   (u/message "-=--=--=--=--=--=--=--=-"))
 
-(defn short-range-scan [game-state]
-  (with-local-vars [condition 3]
-    (cond
-      (is-docked? game-state) (dock game-state)
-      (pos? (count (get-in @game-state [:current-klingons]))) (var-set condition 2)
-      (< 300 (get-in @game-state [:enterprise :energy])) (var-set condition 1)
-      :else (var-set condition 0))
-
-    (if (pos? (get-in @game-state [:enterprise :damage :short_range_sensors]))
-      (u/message "\n*** SHORT RANGE SENSORS ARE OUT ***\n")
-      (display-scan game-state condition))))
-
 (defn lrs-points [quadrant]
   (def valid-idx (apply sorted-set (range 1 (inc dim))))
   (let [xmin (dec (first quadrant)) 
@@ -159,23 +183,8 @@
                  (swap! game-state assoc-in [:lrs-history (u/coord-to-index [(:x %) (:y %)])] %)
                  (format "%d%d%d" (:bases %) (:klingons %) (:stars %)))))))
 
-(defn long-range-scan [game-state]
-  (if (neg? (get-in @game-state [:enterprise :damage :long_range_sensors]))
-    (u/message "LONG RANGE SENSORS ARE INOPERABLE")
-    (do 
-      (def q (get-in @game-state [:enterprise :quadrant]))
-      (u/message "LONG RANGE SENSOR SCAN FOR QUADRANT" (u/point-2-str q))
-      (def scan (lrs-points q))
-
-      (println "-------------------")
-      (println "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
-      (println "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
-      (println "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
-      (println "-------------------")
-      )))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; All of these methods are used to fill quadrants with actors.
+;; All of these functions are used to fill quadrants with actors.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- reset-quadrants
   "Returns a new quadrants 2d-array that is guaranteed to have at least 1 klingon and 1 starbase."
@@ -218,23 +227,17 @@
   [] 
   (gen-uniform 1 9))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; All of these methods are used to fill quadrants with actors.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(declare assign-sector-klingon)
+(defn- create-empty-quadrant []
+  (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] 0)))
 
-(defn init-sector
-  "Initialize a sector with the right amount of game related items."
+(defn place-quadrant
+  "Initialize a quadrant with the right amount of game related items."
   [game-state]
-  (defn create-empty-sector []
-    (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] 0)))
-
 
   (def quad (get (:quads @game-state)
                  (coord-to-index (get-in @game-state [:enterprise :quadrant]))))
-  ; (swap! game-state assoc-in [:current-klingons] [{:x 1 :y 1 :energy 200} {:x 1 :y 2 :energy 200}])
 
-  (let [sector (atom (create-empty-sector))]
+  (let [sector (atom (create-empty-quadrant))]
     (swap! sector assoc 
            (coord-to-index (get-in @game-state [:enterprise :sector]))
            enterprise-id)

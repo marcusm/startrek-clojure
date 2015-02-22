@@ -108,14 +108,14 @@
       (if (game-over? game-state)
         (swap! stop-condition true)
         (do
-          (w/short-range-scan game-state)
+          (w/short-range-scan-command game-state)
 
           (println "COMMAND")
           (let [choice (read-line)]
             (condp = choice
               "0" (n/set-course-command)
-              "1" (w/short-range-scan)
-              "2" (w/long-range-scan)
+              "1" (w/short-range-scan-command)
+              "2" (w/long-range-scan-command)
               "3" (e/fire-phasers-command)
               "4" (e/fire-torpedoes-command)
               "5" (e/shield-control-command)
