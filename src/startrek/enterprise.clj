@@ -175,3 +175,17 @@
               (update-in @game-state [:enterprise :damage system] - (gen-uniform 1 5))
               (u/message "DAMAGE CONTROL REPORT: %s DAMAGED" (system damage-station-map)))))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Damage Control Report functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn damage-control-report [game-state]
+  (println "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
+  (->> (get-in @game-state [:enterprise :damage])
+       (sort)
+       (map #(println (format "%-15s %-2d" ((first %) damage-station-map) (int (second %))))))
+  )
+
+(defn damage-control-report-command [game-state]
+  (if (neg? (get-in @game-state [:enterprise :damage :damage_control]))
+    (println "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
+    (damage-control-report game-state)))

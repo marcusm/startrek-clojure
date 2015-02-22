@@ -57,7 +57,7 @@
 (defn shield-control []
   (e/shield-control-command game-state))
 (defn damage-control-report []
-  (println "damage control report"))
+  (e/damage-control-report-command))
 (defn library-computer []
   (println "library computer"))
 
