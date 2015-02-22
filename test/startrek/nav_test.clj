@@ -183,7 +183,7 @@
 (facts "Detect if the ship will move out of the sector"
        (tabular
          (fact "This ship will leave the sector if a boundary is crossed."
-               (#'n/leave-sector? ?coord) => ?result)
+               (u/leave-sector? ?coord) => ?result)
                ?coord ?result
                [1 1] falsey
                [5 5] falsey

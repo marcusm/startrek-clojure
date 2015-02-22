@@ -38,10 +38,6 @@
         (do (u/message "WARP ENGINES ARE DAMAGED, MAXIMUM SPEED = WARP .2") (recur))
         :else factor))))
 
-(defn- leave-sector? [coord]
-  (some true? (concat (map #(< % 0.5) coord)
-                      (map #(>= % 8.5) coord))))
-
 (defn- hit-item? [sector coord]
   (let [p (map #(math/round %) coord)]
     (pos? (get sector (u/coord-to-index p)))))
@@ -124,7 +120,7 @@
           dir-vec [(Math/cos polar) (Math/sin polar)]]
       (loop [p (map + coord dir-vec) i n]
         (cond
-          (leave-sector? p) (leave-quadrant game-state factor coord dir-vec)
+          (u/leave-sector? p) (leave-quadrant game-state factor coord dir-vec)
           (hit-item? (get-in @game-state [:current-sector]) p) (bad-nav game-state factor p dir-vec)
           (<= i 0 ) (set-sector-position game-state factor p)
           :else (recur (map + p dir-vec) (dec i))))

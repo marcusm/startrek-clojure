@@ -1,8 +1,3 @@
- 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Fire Phasers
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (ns startrek.enterprise
    (:require [startrek.random :as r])
    (:require [startrek.utils :as u :refer :all])
@@ -29,6 +24,10 @@
    :quadrant [(gen-idx) (gen-idx)]
    :sector [(gen-idx) (gen-idx)]
    })
+ 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Fire Phasers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn pick-phaser-power [] 200)
 
 (defn ask-phaser-power [energy pick-power]
@@ -42,16 +41,18 @@
       power
       (recur (ask-phaser-power energy pick-phaser-power)))))
 
-(defn destroy-klingon [game-state klingon]
+(defn- remove-klingon [game-state p]
+  (swap! game-state assoc-in [:current-sector (u/coord-to-index p)] 0)
+
+  (swap! game-state update-in [:quads 
+                               (u/coord-to-index (get-in @game-state [:enterprise :quadrant]))
+                               :klingons] - 1))
+
+(defn phasers-hit-klingon [game-state klingon]
   (let [p [(:x klingon) (:y klingon)]]
     (u/message (format "*** KLINGON AT SECTOR %s DESTROYED ***" u/point-2-str p))
-    (swap! game-state assoc-in [:current-sector (u/coord-to-index p)] 0)
-
-    (swap! game-state update-in [:quads 
-                                 (u/coord-to-index (get-in @game-state [:enterprise :quadrant]))
-                                 :klingons] - 1))
-  (swap! game-state update-in [:starting-klingons] dec)
-  nil)
+    (remove-klingon game-state p)
+  nil))
 
 (defn enterprise-attack [game-state power k-count klingon]
   (let [p [(:x klingon) (:y klingon)]
@@ -88,7 +89,7 @@
     (swap! game-state assoc-in [:current-klingons] 
            (->> (get-in @game-state [:current-klingons])
                 (map #(enterprise-attack game-state power k-count %))
-                (map #(if (pos? (:energy %)) % (destroy-klingon game-state %)))
+                (map #(if (pos? (:energy %)) % (phasers-hit-klingon game-state %)))
                 (reduce conj)
                 (vec)))))
 
@@ -97,6 +98,67 @@
     (empty? (get-in @game-state [:current-klingons])) (u/message "SHORT RANGE SENSORS REPORT NO KLINGONS IN THIS QUADRANT")
     (neg? (get-in @game-state [:enterprise :damage :phasers])) (u/message "PHASER CONTROL IS DISABLED")
     :else (fire-phasers game-state)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Fire Photon Torpedos
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn pick-torpedo-course [] 1)
+
+(defn ask-torpedo-course [pick-course]
+  (u/message "TORPEDO COURSE (1-9) ")
+  (pick-torpedo-course))
+
+(defn select-torpedo-course []
+  (loop [course (ask-torpedo-course pick-torpedo-course)]
+    (if (or (zero? course) (and (> course 0) (< course 9)))
+      course
+      (recur (ask-torpedo-course pick-torpedo-course)))))
+
+(defn torpedo-hit-klingon [game-state coord]
+  (u/message "*** KLINGON DESTROYED ***")
+  (swap! game-state assoc-in [:current-klingons] 
+         (->> (get-in @game-state [:current-klingons])
+              (map #(if (= coord [(:x %) (:y %)]) nil %))
+              (reduce conj)
+              (vec)))
+  (remove-klingon game-state coord))
+
+(defn torpedo-hit-base [game-state coord]
+  (u/message "*** STAR BASE DESTROYED ***  .......CONGRATULATIONS")
+  (swap! game-state assoc-in [:current-sector (u/coord-to-index coord)] 0))
+
+(defn torpedo-hit-star []
+  (u/message "YOU CAN'T DESTROY STARS SILLY") 
+  (u/message "TORPEDO MISSED"))
+
+(defn fire-torpedoes [game-state]
+  (def course (dec (select-torpedo-course)))
+  (swap! game-state update-in [:enterprise :photon_torperdoes] dec)
+
+  (let [polar (* Math/PI (/ course 4))
+        dir-vec [(Math/cos polar) (Math/sin polar)]
+        coord (get-in @game-state [:enterprise :sector])]
+
+    (u/message "TORPEDO TRACK:")
+    (loop [p (map + coord dir-vec)]
+      (let [t (map #(int %) p) 
+            s (get-in @game-state [:current-sector (u/coord-to-index t)])]
+        (u/message (u/point-2-str t))
+        (cond
+          (u/leave-sector? p) (u/message "TORPEDO MISSED")
+          (= s u/klingon-id) (torpedo-hit-klingon game-state t)
+          (= s u/base-id) (torpedo-hit-base game-state t)
+          (= s u/star-id) (torpedo-hit-star) 
+          :else (recur (map + p dir-vec))))))
+
+  game-state)
+
+(defn fire-torpedoes-command [game-state]
+  (if (neg? (get-in @game-state [:enterprise :damage :photon_torpedo_tubes]))
+    (u/message "PHOTON TUBES ARE NOT OPERATIONAL")
+    (if (pos? (get-in @game-state [:enterprise :photon_torperdoes]))
+      (fire-torpedoes game-state)
+      (u/message "ALL PHOTON TORPEDOES EXPENDED"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions to control the enterprise's shields
@@ -179,13 +241,13 @@
 ;; Damage Control Report functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn damage-control-report [game-state]
-  (println "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
+  (u/message "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
   (->> (get-in @game-state [:enterprise :damage])
        (sort)
-       (map #(println (format "%-15s %-2d" ((first %) damage-station-map) (int (second %))))))
+       (map #(u/message (format "%-15s %-2d" ((first %) damage-station-map) (int (second %))))))
   )
 
 (defn damage-control-report-command [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :damage_control]))
-    (println "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
+    (u/message "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
     (damage-control-report game-state)))
