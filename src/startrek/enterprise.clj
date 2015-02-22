@@ -63,7 +63,7 @@
               (* 2 (r/gen-double)))
         z (max 0.0 (- (:energy klingon) h))]
     
-    (println (format "%f UNIT HIT ON KLINGON AT SECTOR %s\n   (%f LEEFT)"
+    (u/message (format "%f UNIT HIT ON KLINGON AT SECTOR %s\n   (%f LEEFT)"
                      h
                      (u/point-2-str p)
                      z))
@@ -75,9 +75,9 @@
     (u/message " COMPUTER FAILURE HAMPERS ACCURACY"))
   (def power (atom (select-phaser-power (get-in @game-state [:enterprise :energy]))))
   (swap! game-state update-in [:enterprise :energy] - @power)
-  (k/klingon-turn 
-    (get-in @game-state [:enterprise])
-    (get-in @game-state [:current-klingons]))
+  (swap! game-state assoc-in [:enterprise] (k/klingon-turn 
+                                        (get-in @game-state [:enterprise])
+                                        (get-in @game-state [:current-klingons])))
 
   (when-not (neg? (get-in @game-state [:enterprise :shields]))
     (when (neg? (get-in @game-state [:enterprise :damage :computer_display]))
@@ -97,6 +97,38 @@
     (empty? (get-in @game-state [:current-klingons])) (u/message "SHORT RANGE SENSORS REPORT NO KLINGONS IN THIS QUADRANT")
     (neg? (get-in @game-state [:enterprise :damage :phasers])) (u/message "PHASER CONTROL IS DISABLED")
     :else (fire-phasers game-state)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Functions to control the enterprise's shields
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn pick-shield-power [] 200)
+
+(defn ask-shield-power [energy shields pick-power]
+  (u/message (format "ENERGY AVAILABLE = %d" (int (+ energy shields))) 
+             (u/message "NUMBER OF UNITS TO SHIELDS "))
+  (pick-power))
+
+(defn select-shield-power [energy shields]
+  (loop [power (ask-shield-power energy shields pick-shield-power)]
+    (if (or (neg? power) (pos? (- (+ shields energy) power)))
+      power
+      (recur (ask-shield-power energy shields pick-shield-power))
+      )))
+
+(defn set-shield-power [game-state]
+  (def power (select-shield-power (get-in @game-state [:enterprise :energy])
+                                  (get-in @game-state [:enterprise :shields])))
+  (when (pos? power)
+    (swap! game-state update-in [:enterprise :energy] +
+           (- (get-in @game-state [:enterprise :shields])
+              power))
+    (swap! game-state assoc-in [:enterprise :shields] power))
+  game-state)
+
+(defn shield-control-command [game-state]
+  (if (neg? (get-in @game-state [:enterprise :damage :shields]))
+      (u/message "SHIELD CONTROL IS NON-OPERATIONAL")
+      (set-shield-power game-state)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The functions repair damage to the enterprise during turns.

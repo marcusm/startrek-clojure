@@ -6,6 +6,26 @@
   (:require [startrek.world :as w])
   (:require [startrek.enterprise :as e]))
 
+(defchecker check-ship-settings? [& expected]
+  (checker [actual]
+           (def expected' (first expected))
+           (and
+             (= (get-in @actual [:enterprise :energy])
+                (get-in expected' [:enterprise :energy]))
+             (= (get-in @actual [:enterprise :shields])
+                (get-in expected' [:enterprise :shields]))
+             )))
+
+(defchecker check-shots-fired? [& expected]
+  (checker [actual]
+           (def expected' (first expected))
+           (and
+             (= (get-in actual [:enterprise :energy])
+                (get-in expected' [:enterprise :energy]))
+             (= 1 (count (get-in actual [:current-klingons])))
+             (zero? (get-in actual [:current-sector (u/coord-to-index [4 3])]))
+             )))
+
 (def game-state-e {:current-klingons  [{:x 4 :y 3 :energy 60} {:x 6 :y 3 :energy 100}]
     :current-sector  [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] 
     :enterprise 
@@ -97,8 +117,20 @@
   
 (facts "What happens when we first phasers?"
   (fact "We can destroy a klingon."
-      (e/fire-phasers-command (atom game-state-e)) => 5
+      (e/fire-phasers-command (atom game-state-e)) => (check-shots-fired? {:enterprise {:energy 1500}})
         (provided
           (e/pick-phaser-power) => 500
           (r/gen-double) => 0.5))
 )
+
+(facts "Verify the enterprise can set shield power"
+       (tabular
+         (fact "Verify the enterprise can set shield power."
+               (e/shield-control-command (atom game-state-e)) => ?result
+                  (provided
+                    (e/pick-shield-power) => ?shields))
+               ?shields ?result
+               100 (check-ship-settings? {:enterprise {:energy 2400 :shields 100}}) 
+               -1 (check-ship-settings? {:enterprise {:energy 2000 :shields 500}}) 
+               1000 (check-ship-settings? {:enterprise {:energy 1500 :shields 1000}}) 
+               ))

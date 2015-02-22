@@ -5,6 +5,7 @@
              [startrek.random :as r]
              [startrek.utils :as u]
              [startrek.klingon :as k]
+             [startrek.enterprise :as e]
              [startrek.world :as w]
              [startrek.nav :as n])
    (:gen-class :main true))
@@ -46,15 +47,15 @@
 (defn set-course []
   (n/set-course game-state))
 (defn short-range-scan []
-  (println "short range scan"))
+  (w/short-range-scan game-state))
 (defn long-range-scan []
-  (println "long range scan"))
+  (w/long-range-scan game-state))
 (defn fire-phasers []
-  (println "fire phasers"))
+  (e/fire-phasers-command game-state))
 (defn fire-torpedoes []
   (println "fire torpedoes"))
 (defn shield-control []
-  (println "shield control"))
+  (e/shield-control-command game-state))
 (defn damage-control-report []
   (println "damage control report"))
 (defn library-computer []

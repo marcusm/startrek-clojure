@@ -71,7 +71,7 @@
                               (map #(max % 1))
                               (map #(min % 8)))]
     (println "sector " sector "quadrant " quadrant)
-    (swap! game-state update-in [:enterprise] merge {:sector sector :quads quadrant})
+    (swap! game-state update-in [:enterprise] merge {:sector sector :quadrant quadrant})
     (println "sector-post: " (get-in @game-state [:enterprise :sector]))
     (println "quadrant " (get-in @game-state [:enterprise :quadrant]))
     (if (and (pos? (get-in @game-state [:quads (coord-to-index quadrant) :klingons]))
