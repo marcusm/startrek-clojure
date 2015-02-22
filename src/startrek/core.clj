@@ -41,23 +41,6 @@
         ;   (println  (char(.readCharacter term System/in)))))
       (recur (rest p))))))
 
-(defn setup-universe []
-  (w/new-game-state game-state)
-  (w/enter-sector game-state))
-(defn set-course []
-  (n/set-course game-state))
-(defn short-range-scan []
-  (w/short-range-scan game-state))
-(defn long-range-scan []
-  (w/long-range-scan game-state))
-(defn fire-phasers []
-  (e/fire-phasers-command game-state))
-(defn fire-torpedoes []
-  (println "fire torpedoes"))
-(defn shield-control []
-  (e/shield-control-command game-state))
-(defn damage-control-report []
-  (e/damage-control-report-command))
 (defn library-computer []
   (println "library computer"))
 
@@ -117,7 +100,8 @@
   (println))
 
 (defn play-game []
-  (setup-universe)
+  (w/new-game-state game-state)
+  (w/enter-sector)
   (let [stop-condition (ref false)]
     (while (not (deref stop-condition))
       ; check to see if the Enterprise is destroyed
@@ -129,13 +113,13 @@
           (println "COMMAND")
           (let [choice (read-line)]
             (condp = choice
-              "0" (set-course)
-              "1" (short-range-scan)
-              "2" (long-range-scan)
-              "3" (fire-phasers)
-              "4" (fire-torpedoes)
-              "5" (shield-control)
-              "6" (damage-control-report)
+              "0" (n/set-course-command)
+              "1" (w/short-range-scan)
+              "2" (w/long-range-scan)
+              "3" (e/fire-phasers-command)
+              "4" (e/fire-torpedoes-command)
+              "5" (e/shield-control-command)
+              "6" (e/damage-control-report-command)
               "7" (library-computer)
               "q" (dosync (alter stop-condition (fn [_] true)))
               (command-help)

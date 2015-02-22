@@ -60,7 +60,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common test methods
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn leave-sector? [coord]
+(defn leave-quadrant? [coord]
   (some true? (concat (map #(< % 0.5) coord)
                       (map #(>= % 8.5) coord))))
 
