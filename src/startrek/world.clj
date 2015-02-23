@@ -98,7 +98,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these methods are used for entering a new quadrant
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn enter-sector [game-state]
+(defn enter-quadrant [game-state]
   ; ensure good sector/quadrant coords
   (let [sector (->> (get-in @game-state [:enterprise :sector])
                             (map #(max % 1))
@@ -151,10 +151,10 @@
                      (u/point-2-str (get-in @game-state [:enterprise :sector]))))
   (u/message (format "%s ENERGY    %d" 
                      (get display-field 5) 
-                     (get-in @game-state [:enterprise :energy])))
+                     (int (get-in @game-state [:enterprise :energy]))))
   (u/message (format "%s SHIELDS   %d" 
                      (get display-field 6) 
-                     (get-in @game-state [:enterprise :shields])))
+                     (int (get-in @game-state [:enterprise :shields]))))
   (u/message (format "%s PHOTOTN TORPEDOS %d" 
                      (get display-field 7) 
                      (get-in @game-state [:enterprise :photon_torpedoes])))

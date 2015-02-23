@@ -12,7 +12,7 @@
      (gen-double)))
 
 (defn klingon-dead? [klingon]
-  (<= (:energy klingon) 0))
+  (not (pos? (:energy klingon))))
 
 (defn- klingon-shot [enterprise klingon]
   (let [h (klingon-shot-strength klingon (-> enterprise :sector))]

@@ -92,14 +92,15 @@
 (defn enter-quadrant [game-state]
   ; ensure good sector/quadrant coords
   (let [sector (->> (get-in @game-state [:enterprise :sector])
-                            (map #(max % 1))
-                            (map #(min % 8)))
+                    (map #(max % 1))
+                    (map #(min % 8)))
         quadrant (->> (get-in @game-state [:enterprise :quadrant])
-                              (map #(max % 1))
-                              (map #(min % 8)))]
+                      (map #(max % 1))
+                      (map #(min % 8)))]
     (swap! game-state update-in [:enterprise] merge {:sector sector :quadrant quadrant})
-    (if (and (pos? (get-in @game-state [:quads (u/coord-to-index quadrant) :klingons]))
-             (> (get-in @game-state [:enterprise :shields] 200)))
+
+    (when (and (pos? (get-in @game-state [:quads (u/coord-to-index quadrant) :klingons]))
+               (> (get-in @game-state [:enterprise :shields] 200)))
       (u/message "COMBAT AREA      CONDITION RED")
       (u/message "   SHIELDS DANGEROUSLY LOW"))
     (w/place-quadrant game-state)))
@@ -140,7 +141,7 @@
     (swap! game-state assoc-in [:current-sector (u/coord-to-index coord)] 0)
 
     ;; travel direction is based on radian direction
-    (let [polar (* Math/PI (/ course' 4))
+    (let [polar (* Math/PI (/ course' -4))
           dir-vec [(Math/cos polar) (Math/sin polar)]]
       (loop [p (map + coord dir-vec) i n]
         (cond

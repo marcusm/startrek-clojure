@@ -133,7 +133,7 @@
                                                                  {:enterprise {:energy 2000
                                                                                :photon_torpedoes 9}})
              (provided
-               (e/pick-torpedo-course) => 1.75)))
+               (e/pick-torpedo-course) => 8.2)))
 
 
 (facts "Verify the enterprise can set shield power"

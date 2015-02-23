@@ -60,18 +60,17 @@
     (damage-control-report game-state)))
 
 (defn enterprise-update [game-state]
-  (when-not (empty? (get-in @game-state [:current-klingons]))
-    (when (pos? (get-in @game-state [:enterprise :enterprise]))
-      (repair-damage (get-in @game-state [:enterprise]))
-      (when (<= (gen-double) 0.2)
-        (let [system (get-system (:enterprise @game-state))]
-          (if (>= (gen-double) 0.5)
-            (do
-              (update-in @game-state [:enterprise :damage system] + (gen-uniform 1 5))
-              (u/message "DAMAGE CONTROL REPORT: %s STATE OF REPAIR IMPROVED" (system damage-station-map)))
-            (do
-              (update-in @game-state [:enterprise :damage system] - (gen-uniform 1 5))
-              (u/message "DAMAGE CONTROL REPORT: %s DAMAGED" (system damage-station-map)))))))))
+  (when (empty? (get-in @game-state [:current-klingons]))
+    (repair-damage (get-in @game-state [:enterprise]))
+    (when (<= (gen-double) 0.2)
+      (let [system (get-system (:enterprise @game-state))]
+        (if (>= (gen-double) 0.5)
+          (do
+            (update-in @game-state [:enterprise :damage system] + (gen-uniform 1 5))
+            (u/message "DAMAGE CONTROL REPORT: %s STATE OF REPAIR IMPROVED" (system damage-station-map)))
+          (do
+            (update-in @game-state [:enterprise :damage system] - (gen-uniform 1 5))
+            (u/message "DAMAGE CONTROL REPORT: %s DAMAGED" (system damage-station-map))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire Phasers Command
@@ -98,7 +97,7 @@
 
 (defn- phasers-hit-klingon [game-state klingon]
   (let [p [(:x klingon) (:y klingon)]]
-    (u/message (format "*** KLINGON AT SECTOR %s DESTROYED ***" u/point-2-str p))
+    (u/message (format "*** KLINGON AT SECTOR %s DESTROYED ***" (u/point-2-str p)))
     (remove-klingon game-state p)
   nil))
 
@@ -112,7 +111,7 @@
               (* 2 (r/gen-double)))
         z (max 0.0 (- (:energy klingon) h))]
     
-    (u/message (format "%f UNIT HIT ON KLINGON AT SECTOR %s\n   (%f LEEFT)"
+    (u/message (format "%f UNIT HIT ON KLINGON AT SECTOR %s\n   (%f LEFT)"
                      h
                      (u/point-2-str p)
                      z))
@@ -137,7 +136,6 @@
            (->> (get-in @game-state [:current-klingons])
                 (map #(enterprise-attack game-state power k-count %))
                 (map #(if (pos? (:energy %)) % (phasers-hit-klingon game-state %)))
-                (reduce conj)
                 (vec)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -176,7 +174,7 @@
   (def course (dec (select-torpedo-course)))
   (swap! game-state update-in [:enterprise :photon_torpedoes] dec)
 
-  (let [polar (* Math/PI (/ course 4))
+  (let [polar (* Math/PI (/ course -4))
         dir-vec [(Math/cos polar) (Math/sin polar)]
         coord (get-in @game-state [:enterprise :sector])]
 
@@ -200,8 +198,8 @@
 (defn pick-shield-power [] 200)
 
 (defn- ask-shield-power [energy shields pick-power]
-  (u/message (format "ENERGY AVAILABLE = %d" (int (+ energy shields))) 
-             (u/message "NUMBER OF UNITS TO SHIELDS "))
+  (u/message (format "ENERGY AVAILABLE = %d" (int (+ energy shields))))
+  (u/message "NUMBER OF UNITS TO SHIELDS ")
   (pick-power))
 
 (defn- select-shield-power [energy shields]
