@@ -105,12 +105,14 @@
 
 (defn play-game []
   (w/new-game-state game-state)
-  (w/enter-quadrant game-state)
+  (n/enter-quadrant game-state)
   (let [stop-condition (ref false)]
     (while (not (deref stop-condition))
       ; check to see if the Enterprise is destroyed
       (if (game-over? game-state)
-        (swap! stop-condition true)
+        (do
+          (w/new-game-state game-state)
+          (n/enter-quadrant game-state))
         (do
           (w/short-range-scan-command game-state)
 

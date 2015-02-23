@@ -1,4 +1,5 @@
 (ns startrek.enterprise
+   (:require [clojure.math.numeric-tower :as math])
    (:require [startrek.random :as r])
    (:require [startrek.utils :as u :refer :all])
    (:require [startrek.klingon :as k]))
@@ -70,7 +71,7 @@
             (u/message "DAMAGE CONTROL REPORT: %s STATE OF REPAIR IMPROVED" (system damage-station-map)))
           (do
             (update-in @game-state [:enterprise :damage system] - (gen-uniform 1 5))
-            (u/message "DAMAGE CONTROL REPORT: %s DAMAGED" (system damage-station-map))))))))
+            (u/message (format "DAMAGE CONTROL REPORT: %s DAMAGED" (system damage-station-map)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire Phasers Command
@@ -136,6 +137,7 @@
            (->> (get-in @game-state [:current-klingons])
                 (map #(enterprise-attack game-state power k-count %))
                 (map #(if (pos? (:energy %)) % (phasers-hit-klingon game-state %)))
+                (remove nil?)
                 (vec)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -158,7 +160,7 @@
   (swap! game-state assoc-in [:current-klingons] 
          (->> (get-in @game-state [:current-klingons])
               (map #(if (= coord [(:x %) (:y %)]) nil %))
-              (reduce conj)
+              (remove nil?)
               (vec)))
   (remove-klingon game-state coord))
 
@@ -180,8 +182,9 @@
 
     (u/message "TORPEDO TRACK:")
     (loop [p (map + coord dir-vec)]
-      (let [t (map #(int %) p) 
+      (let [t (map #(math/round %) p) 
             s (get-in @game-state [:current-sector (u/coord-to-index t)])]
+        (println "coord" coord "p" p "t" t "dir-vec" dir-vec)
         (u/message (u/point-2-str t))
         (cond
           (u/leave-quadrant? p) (u/message "TORPEDO MISSED")
@@ -190,6 +193,10 @@
           (= s u/star-id) (torpedo-hit-star) 
           :else (recur (map + p dir-vec))))))
 
+  (when (pos? (count (get-in @game-state [:current-klingons])))
+    (swap! game-state assoc-in [:enterprise] (k/klingon-turn 
+                                               (get-in @game-state [:enterprise])
+                                               (get-in @game-state [:current-klingons]))))
   game-state)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

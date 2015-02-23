@@ -13,9 +13,11 @@
 
 (defn set-course-command [game-state]
   (let [course (select-course) factor (select-warp-factor (:enterprise @game-state))]
-    (assoc-in @game-state [:enterprise] (k/klingon-turn 
-                                          (:enterprise @game-state) 
-                                          (:current-klingons @game-state)))
+    (when (pos? (count (get-in @game-state [:current-klingons])))
+      (swap! game-state assoc-in [:enterprise] (k/klingon-turn 
+                                                 (get-in @game-state [:enterprise])
+                                                 (get-in @game-state [:current-klingons]))))
+    (println "enterprise =>" (get-in @game-state [:enterprise]))
     (when-not (neg? (get-in @game-state [:enterprise :shields]))
       (e/enterprise-update game-state)
       (move game-state course factor))))
@@ -126,9 +128,11 @@
         (var-set new-quad (update-in @new-sector [1] dec)))
       (def updates {:sector (vec @new-sector) :quadrant (vec @new-quad) :energy energy})
       (swap! game-state update-in [:enterprise] merge updates)
-      ; (println "enterprise =>" (get-in @game-state [:enterprise]))
+
+      (println "enterprise =>" (get-in @game-state [:enterprise]))
+      
       (when (> factor 1)
-        (swap! game-state update-in [:stardate :start] inc))))
+        (swap! game-state update-in [:stardate :current] inc))))
 
   (swap! game-state assoc-in [:current-klingons] [])
   (enter-quadrant game-state))

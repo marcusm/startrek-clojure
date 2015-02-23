@@ -98,24 +98,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these methods are used for entering a new quadrant
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn enter-quadrant [game-state]
-  ; ensure good sector/quadrant coords
-  (let [sector (->> (get-in @game-state [:enterprise :sector])
-                            (map #(max % 1))
-                            (map #(min % 8)))
-        quadrant (->> (get-in @game-state [:enterprise :quadrant])
-                              (map #(max % 1))
-                              (map #(min % 8)))]
-    (println "sector " sector "quadrant " quadrant)
-    (swap! game-state update-in [:enterprise] merge {:sector sector :quadrant quadrant})
-    (println "sector-post: " (get-in @game-state [:enterprise :sector]))
-    (println "quadrant " (get-in @game-state [:enterprise :quadrant]))
-    (if (and (pos? (get-in @game-state [:quads (coord-to-index quadrant) :klingons]))
-             (> (get-in @game-state [:enterprise :shields] 200)))
-      (u/message "COMBAT AREA      CONDITION RED")
-      (u/message "   SHIELDS DANGEROUSLY LOW"))
-    (place-quadrant game-state)))
-
 (defn- dock [game-state]
     (swap! game-state update-in [:enterprise] merge {:energy 3000 :photon_torpedoes 10 :shields 0})
     (u/message "SHIELDS DROPPED FOR DOCKING PURPOSES"))
