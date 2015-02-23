@@ -19,13 +19,14 @@
        edn/read-string
        (map :page)))
 
-; only needed for reading numbers from command line
-(let [m (.getDeclaredMethod clojure.lang.LispReader
-                            "matchNumber"
-                            (into-array [String]))]
-  (.setAccessible m true)
-  (defn parse-number [s]
-    (.invoke m clojure.lang.LispReader (into-array [s]))))
+(defn parse-number
+  "Reads a number from a string. Returns nil if not a number."
+  [s]
+  (if (re-find #"^-?\d+\.?\d*$" s)
+    (read-string s)
+    (let [s2 (str "0" s)]
+      (if (re-find #"^-?\d+\.?\d*$" s2)
+        (read-string s2)))))
 
 (defn print-instructions [pause]
   (loop [p pages]
@@ -99,9 +100,12 @@
   (println "   7 = CALL ON LIBRARY COMPUTER")
   (println))
 
+(defn user-input []
+  (parse-number (read-line)))
+
 (defn play-game []
   (w/new-game-state game-state)
-  (w/enter-sector)
+  (w/enter-quadrant game-state)
   (let [stop-condition (ref false)]
     (while (not (deref stop-condition))
       ; check to see if the Enterprise is destroyed
@@ -113,13 +117,13 @@
           (println "COMMAND")
           (let [choice (read-line)]
             (condp = choice
-              "0" (n/set-course-command)
-              "1" (w/short-range-scan-command)
-              "2" (w/long-range-scan-command)
-              "3" (e/fire-phasers-command)
-              "4" (e/fire-torpedoes-command)
-              "5" (e/shield-control-command)
-              "6" (e/damage-control-report-command)
+              "0" (n/set-course-command game-state)
+              "1" (w/short-range-scan-command game-state)
+              "2" (w/long-range-scan-command game-state)
+              "3" (e/fire-phasers-command game-state)
+              "4" (e/fire-torpedoes-command game-state)
+              "5" (e/shield-control-command game-state)
+              "6" (e/damage-control-report-command game-state)
               "7" (library-computer)
               "q" (dosync (alter stop-condition (fn [_] true)))
               (command-help)
@@ -144,5 +148,10 @@
   (let [seed (parse-number (read-line))]
     (binding  [gen/*rnd*  (java.util.Random. seed)])
 
-    (with-redefs [u/message println]
+    (with-redefs [u/message println
+                  n/pick-course user-input
+                  n/pick-warp-factor user-input
+                  e/pick-phaser-power user-input
+                  e/pick-torpedo-course user-input
+                  e/pick-shield-power user-input ]
     (play-game))))
