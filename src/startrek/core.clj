@@ -157,5 +157,7 @@
                   e/pick-phaser-power user-input
                   e/pick-torpedo-course user-input
                   e/pick-shield-power user-input 
-                  c/pick-computer-command  user-input ]
+                  c/pick-computer-command  user-input 
+                  c/pick-coordinate  user-input 
+                  ]
     (play-game))))

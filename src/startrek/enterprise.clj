@@ -68,7 +68,7 @@
         (if (>= (gen-double) 0.5)
           (do
             (update-in @game-state [:enterprise :damage system] + (gen-uniform 1 5))
-            (u/message "DAMAGE CONTROL REPORT: %s STATE OF REPAIR IMPROVED" (system damage-station-map)))
+            (u/message (format "DAMAGE CONTROL REPORT: %s STATE OF REPAIR IMPROVED" (system damage-station-map))))
           (do
             (update-in @game-state [:enterprise :damage system] - (gen-uniform 1 5))
             (u/message (format "DAMAGE CONTROL REPORT: %s DAMAGED" (system damage-station-map)))))))))

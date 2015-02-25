@@ -103,8 +103,6 @@
                       (vec))]
     (swap! game-state update-in [:enterprise] merge {:sector sector :quadrant quadrant})
     (w/update-lrs-cell game-state (get-in @game-state [:quads (u/coord-to-index quadrant)]))
-    (println "sector" (get-in @game-state [:enterprise :sector]))
-    (println "quadrant" (get-in @game-state [:enterprise :quadrant]))
     
     (when (and (pos? (get-in @game-state [:quads (u/coord-to-index quadrant) :klingons]))
                (> (get-in @game-state [:enterprise :shields] 200)))
@@ -124,22 +122,10 @@
                      (map #(min % 8)))))
     (def s (vec (map #(math/round %) (map - place (vec (map #(* 8 %) q))))))
 
-    (println "place " place "q " q "s " s)
+    (swap! game-state update-in [:enterprise] merge {:sector s :quadrant q :energy energy})
 
-    (with-local-vars [new-quad q new-sector s]
-      (when (zero? (first @new-sector))
-        (var-set new-sector (assoc @new-sector 0 8))
-        (var-set new-quad (update-in @new-quad [0] dec)))
-      (when (zero? (second @new-sector))
-        (var-set new-sector (assoc @new-sector 1 8))
-        (var-set new-quad (update-in @new-sector [1] dec)))
-      (def updates {:sector (vec @new-sector) :quadrant (vec @new-quad) :energy energy})
-      (swap! game-state update-in [:enterprise] merge updates)
-      (println "sector" (get-in @game-state [:enterprise :sector]))
-      (println "quadrant" (get-in @game-state [:enterprise :quadrant]))
-
-      (when (> factor 1)
-        (swap! game-state update-in [:stardate :current] inc))))
+    (when (> factor 1)
+      (swap! game-state update-in [:stardate :current] inc)))
 
   (w/update-lrs-cell game-state (get-in @game-state [:quads (u/coord-to-index q)]))
 
@@ -167,6 +153,5 @@
                                   (u/coord-to-index 
                                     (get-in @game-state [:enterprise :sector]))] 
              1)
-      (merge @game-state {:quads []})
-      )))
+      (merge @game-state {:quads []}))))
 
