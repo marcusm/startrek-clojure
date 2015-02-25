@@ -63,7 +63,7 @@
 (defn enterprise-update [game-state]
   (when (empty? (get-in @game-state [:current-klingons]))
     (repair-damage game-state (get-in @game-state [:enterprise]))
-    (when (<= (gen-double) 0.8)
+    (when (<= (gen-double) 0.2)
       (let [system (get-system (:enterprise @game-state))]
         (if (>= (gen-double) 0.5)
           (do
