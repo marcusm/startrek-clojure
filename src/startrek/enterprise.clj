@@ -131,7 +131,7 @@
 
     (when-not (neg? (get-in @game-state [:enterprise :shields]))
       (when (neg? (get-in @game-state [:enterprise :damage :computer_display]))
-        (swap! power update * (r/gen-double)))
+        (swap! power #(* % (r/gen-double))))
 
       (swap! game-state assoc-in [:current-klingons] 
              (->> (get-in @game-state [:current-klingons])
@@ -264,6 +264,6 @@
   (u/message "DEVICE        STATE OF REPAIR")
 
   (doseq [damage (->> (get-in @game-state [:enterprise :damage])
-       (sort)
-       (map #(format "%-15s %-2d" ((first %) damage-station-map) (int (second %))))
-       )] (u/message damage)))
+                      (sort)
+                      (map #(format "%-15s %-2d" ((first %) damage-station-map) (int (second %)))))] 
+    (u/message damage)))
