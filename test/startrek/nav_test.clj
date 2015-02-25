@@ -105,6 +105,96 @@
  :starting-klingons 12 }
 )
 
+
+(def game-state-b {:current-klingons  []
+    :current-sector  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] 
+    :enterprise 
+    {
+      :damage
+         {:computer_display 0 
+          :damage_control 0 
+          :long_range_sensors 0 
+          :phasers 0 
+          :photon_torpedo_tubes 0 
+          :shields 0 
+          :short_range_sensors 0 
+          :warp_engines 0
+         } 
+      :energy 3000 
+      :is_docked false
+      :photon_torpedoes 10
+      :quadrant  [1 1]
+      :sector  [5 5]
+      :shields 0    
+    }
+    :quads  [{:bases 0 :klingons 0 :stars 3 :x 1 :y 1}
+             {:bases 0 :klingons 0 :stars 8 :x 2 :y 1}
+             {:bases 0 :klingons 0 :stars 4 :x 3 :y 1}
+             {:bases 0 :klingons 1 :stars 4 :x 4 :y 1}
+             {:bases 0 :klingons 0 :stars 2 :x 5 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 6 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 7 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 8 :y 1}
+             {:bases 0 :klingons 0 :stars 7 :x 1 :y 2}
+             {:bases 0 :klingons 2 :stars 6 :x 2 :y 2}
+             {:bases 0 :klingons 0 :stars 8 :x 3 :y 2}
+             {:bases 0 :klingons 0 :stars 3 :x 4 :y 2}
+             {:bases 0 :klingons 0 :stars 4 :x 5 :y 2}
+             {:bases 0 :klingons 0 :stars 7 :x 6 :y 2}
+             {:bases 0 :klingons 1 :stars 4 :x 7 :y 2}
+             {:bases 0 :klingons 0 :stars 2 :x 8 :y 2}
+             {:bases 0 :klingons 0 :stars 4 :x 1 :y 3}
+             {:bases 0 :klingons 0 :stars 3 :x 2 :y 3}
+             {:bases 0 :klingons 0 :stars 7 :x 3 :y 3}
+             {:bases 0 :klingons 0 :stars 3 :x 4 :y 3}
+             {:bases 0 :klingons 0 :stars 0 :x 5 :y 3}
+             {:bases 0 :klingons 1 :stars 4 :x 6 :y 3}
+             {:bases 0 :klingons 0 :stars 6 :x 7 :y 3}
+             {:bases 0 :klingons 0 :stars 1 :x 8 :y 3}
+             {:bases 0 :klingons 0 :stars 6 :x 1 :y 4}
+             {:bases 0 :klingons 1 :stars 4 :x 2 :y 4}
+             {:bases 0 :klingons 0 :stars 8 :x 3 :y 4}
+             {:bases 0 :klingons 2 :stars 1 :x 4 :y 4}
+             {:bases 0 :klingons 0 :stars 8 :x 5 :y 4}
+             {:bases 0 :klingons 0 :stars 3 :x 6 :y 4}
+             {:bases 0 :klingons 0 :stars 1 :x 7 :y 4}
+             {:bases 0 :klingons 0 :stars 7 :x 8 :y 4}
+             {:bases 0 :klingons 0 :stars 1 :x 1 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 2 :y 5}
+             {:bases 0 :klingons 0 :stars 1 :x 3 :y 5}
+             {:bases 0 :klingons 0 :stars 7 :x 4 :y 5}
+             {:bases 0 :klingons 0 :stars 5 :x 5 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 6 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 7 :y 5}
+             {:bases 0 :klingons 0 :stars 8 :x 8 :y 5}
+             {:bases 0 :klingons 0 :stars 3 :x 1 :y 6}
+             {:bases 0 :klingons 0 :stars 5 :x 2 :y 6}
+             {:bases 0 :klingons 0 :stars 6 :x 3 :y 6}
+             {:bases 0 :klingons 0 :stars 7 :x 4 :y 6}
+             {:bases 0 :klingons 0 :stars 7 :x 5 :y 6}
+             {:bases 0 :klingons 1 :stars 6 :x 6 :y 6}
+             {:bases 0 :klingons 1 :stars 6 :x 7 :y 6}
+             {:bases 1 :klingons 1 :stars 7 :x 8 :y 6}
+             {:bases 0 :klingons 0 :stars 5 :x 1 :y 7}
+             {:bases 0 :klingons 0 :stars 5 :x 2 :y 7}
+             {:bases 0 :klingons 0 :stars 6 :x 3 :y 7}
+             {:bases 0 :klingons 0 :stars 1 :x 4 :y 7}
+             {:bases 0 :klingons 0 :stars 8 :x 5 :y 7}
+             {:bases 0 :klingons 1 :stars 3 :x 6 :y 7}
+             {:bases 0 :klingons 0 :stars 5 :x 7 :y 7}
+             {:bases 0 :klingons 0 :stars 5 :x 8 :y 7}
+             {:bases 0 :klingons 0 :stars 6 :x 1 :y 8}
+             {:bases 0 :klingons 0 :stars 3 :x 2 :y 8}
+             {:bases 1 :klingons 0 :stars 3 :x 3 :y 8}
+             {:bases 0 :klingons 0 :stars 1 :x 4 :y 8}
+             {:bases 0 :klingons 0 :stars 5 :x 5 :y 8}
+             {:bases 0 :klingons 0 :stars 7 :x 6 :y 8}
+             {:bases 0 :klingons 0 :stars 6 :x 7 :y 8}
+             {:bases 0 :klingons 0 :stars 8 :x 8 :y 8}]
+ :stardate  {:current 3500 :end 30 :start 3500}
+ :starting-klingons 12 }
+)
+
 (facts "Verify the enterprise will move in predictible ways."
        (tabular
          (fact "Verify ship will move exactly 1 sector in chosen direction."
@@ -132,6 +222,26 @@
                7 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [5 4]}})
                8 1.0 (contains-move? {:enterprise {:sector [3 3] :quadrant [6 4]}})
                9 1.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [6 3]}})  
+               )
+       (tabular
+         (fact "Verify ship will move exactly 3 quadrants in chosen direction."
+               (n/move (atom game-state-a) ?course ?factor) => ?result)
+               ?course ?factor ?result
+               1 3.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [8 3]}})
+               1 4.0 (contains-move? {:enterprise {:sector [8 5] :quadrant [8 3]}})
+               3 3.0 (contains-move? {:enterprise {:sector [5 1] :quadrant [5 1]}})
+               5 3.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [2 3]}})
+               7 3.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [5 6]}})
+               9 3.0 (contains-move? {:enterprise {:sector [5 5] :quadrant [8 3]}})  
+               )
+       (tabular
+         (fact "Verify ship will move exactly 8 quadrants in chosen direction."
+               (n/move (atom game-state-b) ?course ?factor) => ?result)
+               ?course ?factor ?result
+               1 8.0 (contains-move? {:enterprise {:sector [8 5] :quadrant [8 1]}})
+               5 8.0 (contains-move? {:enterprise {:sector [1 5] :quadrant [1 1]}})
+               7 8.0 (contains-move? {:enterprise {:sector [5 8] :quadrant [1 8]}})
+               9 8.0 (contains-move? {:enterprise {:sector [8 5] :quadrant [8 1]}})  
                ))
 
 (facts "We need to verify we only pick valid courses"

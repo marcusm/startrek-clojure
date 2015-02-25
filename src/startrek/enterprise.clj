@@ -184,7 +184,7 @@
     (loop [p (map + coord dir-vec)]
       (let [t (map #(math/round %) p) 
             s (get-in @game-state [:current-sector (u/coord-to-index t)])]
-        (println "coord" coord "p" p "t" t "dir-vec" dir-vec)
+        
         (u/message (u/point-2-str t))
         (cond
           (u/leave-quadrant? p) (u/message "TORPEDO MISSED")
@@ -261,11 +261,12 @@
 ;; Damage Control Report functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- damage-control-report [game-state]
-  (u/message "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
-  (->> (get-in @game-state [:enterprise :damage])
+  (u/message "DEVICE        STATE OF REPAIR")
+
+  (doseq [damage (->> (get-in @game-state [:enterprise :damage])
        (sort)
-       (map #(u/message (format "%-15s %-2d" ((first %) damage-station-map) (int (second %))))))
-  )
+       (map #(format "%-15s %-2d" ((first %) damage-station-map) (int (second %))))
+       )] (u/message damage)))
 
 (defn damage-control-report-command [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :damage_control]))

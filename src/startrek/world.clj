@@ -54,11 +54,11 @@
       (u/message "LONG RANGE SENSOR SCAN FOR QUADRANT" (u/point-2-str q))
       (def scan (lrs-points q))
 
-      (println "-------------------")
-      (println "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
-      (println "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
-      (println "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
-      (println "-------------------")
+      (u/message "-------------------")
+      (u/message "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
+      (u/message "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
+      (u/message "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
+      (u/message "-------------------")
       )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -93,7 +93,7 @@
   (reduce + (map #(:bases %) quadrants)))
 
 (defn create-empty-lrs-history []
-  (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] {:x x :y y})))
+  (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] "000")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these methods are used for entering a new quadrant
@@ -123,12 +123,12 @@
 
   (u/message "-=--=--=--=--=--=--=--=-")
   (u/message (get display-field 0))
-  (u/message (format "%s STARDATE %d" (get display-field 1) (get-in @game-state [:stardate :current])))
+  (u/message (format "%s STARDATE  %d" (get display-field 1) (get-in @game-state [:stardate :current])))
   (u/message (format "%s CONDITION %s" (get display-field 2) status))
-  (u/message (format "%s QUADRANT %s" 
+  (u/message (format "%s QUADRANT  %s" 
                      (get display-field 3) 
                      (u/point-2-str (get-in @game-state [:enterprise :quadrant]))))
-  (u/message (format "%s SECTOR   %s" 
+  (u/message (format "%s SECTOR    %s" 
                      (get display-field 4) 
                      (u/point-2-str (get-in @game-state [:enterprise :sector]))))
   (u/message (format "%s ENERGY    %d" 
@@ -155,6 +155,10 @@
             [x y]
             []))))))
 
+(defn update-lrs-cell [game-state quad]
+  (swap! game-state assoc-in [:lrs-history (u/coord-to-index [(:x quad) (:y quad)])] 
+         (format "%d%d%d" (:bases quad) (:klingons quad) (:stars quad))))
+
 (defn lrs-row [game-state row]
   (->> row
        (map #(if (empty? %) -1 (u/coord-to-index %)))
@@ -162,8 +166,8 @@
        (map #(if (empty? %) 
                "000" 
                (do 
-                 (swap! game-state assoc-in [:lrs-history (u/coord-to-index [(:x %) (:y %)])] %)
-                 (format "%d%d%d" (:bases %) (:klingons %) (:stars %)))))))
+                 (update-lrs-cell game-state %)
+                 (get-in @game-state [:lrs-history (u/coord-to-index [(:x %) (:y %)])]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these functions are used to fill quadrants with actors.

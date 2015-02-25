@@ -7,7 +7,8 @@
              [startrek.klingon :as k]
              [startrek.enterprise :as e]
              [startrek.world :as w]
-             [startrek.nav :as n])
+             [startrek.nav :as n]
+             [startrek.computer :as c])
    (:gen-class :main true))
 
 (def game-state (atom {}))
@@ -75,7 +76,7 @@
   (let [k (get-in @game-state [:starting-klingons]) 
         start (get-in @game-state [:stardate :start])
         current (get-in @game-state [:stardate :current])]
-    (u/message (format "YOUR EFFICIENCY RATING = %5.2f" (* 1000 (/ k (- start current)))))))
+    (u/message (format "YOUR EFFICIENCY RATING = %5.2f" (* 1000.0 (/ k (- current start)))))))
 
 (defn game-over? [game-state]
   (cond
@@ -126,7 +127,7 @@
               "4" (e/fire-torpedoes-command game-state)
               "5" (e/shield-control-command game-state)
               "6" (e/damage-control-report-command game-state)
-              "7" (library-computer)
+              "7" (c/computer-command game-state)
               "q" (dosync (alter stop-condition (fn [_] true)))
               (command-help)
               )))))))
@@ -155,5 +156,6 @@
                   n/pick-warp-factor user-input
                   e/pick-phaser-power user-input
                   e/pick-torpedo-course user-input
-                  e/pick-shield-power user-input ]
+                  e/pick-shield-power user-input 
+                  c/pick-computer-command  user-input ]
     (play-game))))
