@@ -1,5 +1,5 @@
 (ns startrek.core-test
-  (:use midje.sweet)
+  (:require [midje.sweet :refer :all])
   (:require [startrek.core :as c])
   (:require [startrek.world :as w])
   (:require [startrek.klingon :as k]))

@@ -284,7 +284,7 @@
             0.1     0.1
             4       4
             8       8))
-  (let [enterprise (assoc-in (e/reset-enterprise) [:damage :warp_engines] 1)]
+  (let [enterprise (assoc-in (e/reset-enterprise) [:damage :warp_engines] -1)]
     (fact "A ship with damaged engines moves at a crawl."
         (n/select-warp-factor enterprise) => 0.2
           (provided

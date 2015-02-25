@@ -22,17 +22,17 @@
 (defn new-game-state
   "Create a new world game state. Resets the enterprise and the quadrants."
   [game-state]
-  (def stardate (* 100 (+ 20 (gen-uniform 1 21))))
-  (def quads (reset-quadrants))
+  (let [stardate (* 100 (+ 20 (gen-uniform 1 21)))
+        quads (reset-quadrants)]
 
-  (reset! game-state
-    {:enterprise (reset-enterprise)
-    :quads quads
-    :current-sector []
-    :current-klingons []
-    :lrs-history (create-empty-lrs-history)
-    :starting-klingons (remaining-klingon-count quads)
-    :stardate {:start stardate :current stardate :end 30}}))
+    (reset! game-state
+            {:enterprise (reset-enterprise)
+             :quads quads
+             :current-sector []
+             :current-klingons []
+             :lrs-history (create-empty-lrs-history)
+             :starting-klingons (remaining-klingon-count quads)
+             :stardate {:start stardate :current stardate :end 30}})))
 
 (defn short-range-scan-command [game-state]
   (with-local-vars [condition 3]
@@ -42,7 +42,7 @@
       (< 300 (get-in @game-state [:enterprise :energy])) (var-set condition 1)
       :else (var-set condition 0))
 
-    (if (pos? (get-in @game-state [:enterprise :damage :short_range_sensors]))
+    (if (neg? (get-in @game-state [:enterprise :damage :short_range_sensors]))
       (u/message "\n*** SHORT RANGE SENSORS ARE OUT ***\n")
       (display-scan game-state condition))))
 
@@ -50,16 +50,16 @@
   (if (neg? (get-in @game-state [:enterprise :damage :long_range_sensors]))
     (u/message "LONG RANGE SENSORS ARE INOPERABLE")
     (do 
-      (def q (get-in @game-state [:enterprise :quadrant]))
-      (u/message "LONG RANGE SENSOR SCAN FOR QUADRANT" (u/point-2-str q))
-      (def scan (lrs-points q))
+      (let [q (get-in @game-state [:enterprise :quadrant])
+            scan (lrs-points q)]
+        (u/message "LONG RANGE SENSOR SCAN FOR QUADRANT" (u/point-2-str q))
 
-      (u/message "-------------------")
-      (u/message "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
-      (u/message "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
-      (u/message "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
-      (u/message "-------------------")
-      )))
+        (u/message "-------------------")
+        (u/message "|" (clojure.string/join " | " (lrs-row game-state (first scan))) "|")
+        (u/message "|" (clojure.string/join " | " (lrs-row game-state (second scan))) "|")
+        (u/message "|" (clojure.string/join " | " (lrs-row game-state (last scan))) "|")
+        (u/message "-------------------")
+        ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; These methods are used to check on the current world state.
@@ -102,52 +102,53 @@
     (swap! game-state update-in [:enterprise] merge {:energy 3000 :photon_torpedoes 10 :shields 0})
     (u/message "SHIELDS DROPPED FOR DOCKING PURPOSES"))
 
+(defn- status [condition]
+  (condp = condition
+    1 "YELLOW"
+    2 "RED"
+    3 "DOCKED"
+    "GREEN"))
+
 (defn display-scan [game-state condition]
-  (def display-field
-    (->> (get-in @game-state [:current-sector])
-         (map #(if  (zero? %)  "   " %))
-         (map #(if  (= 1 %)  "<*>" %))
-         (map #(if  (= 2 %)  "+++" %))
-         (map #(if  (= 3 %)  ">!<" %))
-         (map #(if  (= 4 %)  " * " %))
-         (partition 8)
-         (map #(clojure.string/join "" %))
-         (vec)))
+  (let [display-field
+        (->> (get-in @game-state [:current-sector])
+             (map #(if  (zero? %)  "   " %))
+             (map #(if  (= 1 %)  "<*>" %))
+             (map #(if  (= 2 %)  "+++" %))
+             (map #(if  (= 3 %)  ">!<" %))
+             (map #(if  (= 4 %)  " * " %))
+             (partition 8)
+             (map #(clojure.string/join "" %))
+             (vec))]
 
-  (def status
-    (condp = condition
-      1 "YELLOW"
-      2 "RED"
-      3 "DOCKED"
-      "GREEN"))
-
-  (u/message "-=--=--=--=--=--=--=--=-")
-  (u/message (get display-field 0))
-  (u/message (format "%s STARDATE  %d" (get display-field 1) (get-in @game-state [:stardate :current])))
-  (u/message (format "%s CONDITION %s" (get display-field 2) status))
-  (u/message (format "%s QUADRANT  %s" 
-                     (get display-field 3) 
-                     (u/point-2-str (get-in @game-state [:enterprise :quadrant]))))
-  (u/message (format "%s SECTOR    %s" 
-                     (get display-field 4) 
-                     (u/point-2-str (get-in @game-state [:enterprise :sector]))))
-  (u/message (format "%s ENERGY    %d" 
-                     (get display-field 5) 
-                     (int (get-in @game-state [:enterprise :energy]))))
-  (u/message (format "%s SHIELDS   %d" 
-                     (get display-field 6) 
-                     (int (get-in @game-state [:enterprise :shields]))))
-  (u/message (format "%s PHOTOTN TORPEDOS %d" 
-                     (get display-field 7) 
-                     (get-in @game-state [:enterprise :photon_torpedoes])))
-  (u/message "-=--=--=--=--=--=--=--=-"))
+    (u/message "-=--=--=--=--=--=--=--=-")
+    (u/message (get display-field 0))
+    (u/message (format "%s STARDATE  %d" (get display-field 1) (get-in @game-state [:stardate :current])))
+    (u/message (format "%s CONDITION %s" (get display-field 2) (status condition)))
+    (u/message (format "%s QUADRANT  %s" 
+                       (get display-field 3) 
+                       (u/point-2-str (get-in @game-state [:enterprise :quadrant]))))
+    (u/message (format "%s SECTOR    %s" 
+                       (get display-field 4) 
+                       (u/point-2-str (get-in @game-state [:enterprise :sector]))))
+    (u/message (format "%s ENERGY    %d" 
+                       (get display-field 5) 
+                       (int (get-in @game-state [:enterprise :energy]))))
+    (u/message (format "%s SHIELDS   %d" 
+                       (get display-field 6) 
+                       (int (get-in @game-state [:enterprise :shields]))))
+    (u/message (format "%s PHOTOTN TORPEDOS %d" 
+                       (get display-field 7) 
+                       (get-in @game-state [:enterprise :photon_torpedoes])))
+    (u/message "-=--=--=--=--=--=--=--=-")))
 
 (defn lrs-points [quadrant]
-  (def valid-idx (apply sorted-set (range 1 (inc dim))))
   (let [xmin (dec (first quadrant)) 
         xmax (+ 2 (first quadrant))
         ymin (dec (second quadrant))
-        ymax (+ 2 (second quadrant))]
+        ymax (+ 2 (second quadrant))
+        valid-idx (apply sorted-set (range 1 (inc dim)))
+        ]
     (for [y (range ymin ymax)]
       (vec
         (for [x (range xmin xmax)]
@@ -172,17 +173,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these functions are used to fill quadrants with actors.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn- create-quadrants []
+  (vec (for [y (range 1 (inc dim)) x (range 1 (inc dim))]
+         {:x x 
+          :y y 
+          :klingons (assign-quadrant-klingons) 
+          :stars (assign-quadrant-stars)
+          :bases (assign-quadrant-starbases)})))
+
 (defn- reset-quadrants
   "Returns a new quadrants 2d-array that is guaranteed to have at least 1 klingon and 1 starbase."
   []
-  (defn create-quadrants []
-    (vec (for [y (range 1 (inc dim)) x (range 1 (inc dim))]
-           {:x x 
-            :y y 
-            :klingons (assign-quadrant-klingons) 
-            :stars (assign-quadrant-stars)
-            :bases (assign-quadrant-starbases)})))
-
   (loop []
     (let [quadrants (create-quadrants)]
       (cond
@@ -220,10 +221,9 @@
   "Initialize a quadrant with the right amount of game related items."
   [game-state]
 
-  (def quad (get (:quads @game-state)
-                 (coord-to-index (get-in @game-state [:enterprise :quadrant]))))
-
-  (let [sector (atom (create-empty-quadrant))]
+  (let [quad (get (:quads @game-state)
+                  (coord-to-index (get-in @game-state [:enterprise :quadrant])))
+        sector (atom (create-empty-quadrant))]
     (swap! sector assoc 
            (coord-to-index (get-in @game-state [:enterprise :sector]))
            enterprise-id)

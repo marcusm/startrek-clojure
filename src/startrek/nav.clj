@@ -52,13 +52,14 @@
   (pick-warp-factor))
 
 (defn- warp-engines-down? [enterprise factor]
-  (and (pos? (get-in enterprise [:damage :warp_engines])) (> factor 0.2)))
+  (and (neg? (get-in enterprise [:damage :warp_engines])) (> factor 0.2)))
 
 (defn select-warp-factor
   [enterprise]
   (loop []
     (let [factor (ask-warp-factor)]
       (cond
+        (nil? factor) (recur)
         (neg? factor) (recur)
         (> factor 9) (recur)
         (warp-engines-down? enterprise factor) (do 
@@ -103,12 +104,12 @@
                       (vec))]
     (swap! game-state update-in [:enterprise] merge {:sector sector :quadrant quadrant})
     (w/update-lrs-cell game-state (get-in @game-state [:quads (u/coord-to-index quadrant)]))
-    
-    (when (and (pos? (get-in @game-state [:quads (u/coord-to-index quadrant) :klingons]))
-               (> (get-in @game-state [:enterprise :shields] 200)))
+
+    (when (pos? (get-in @game-state [:quads (u/coord-to-index quadrant) :klingons]))
       (u/message "COMBAT AREA      CONDITION RED")
-      (u/message "   SHIELDS DANGEROUSLY LOW"))
-    (w/place-quadrant game-state)))
+      (when (> (get-in @game-state [:enterprise :shields]) 200)
+        (u/message "   SHIELDS DANGEROUSLY LOW"))))
+  (w/place-quadrant game-state))
 
 (defn- leave-quadrant [game-state factor coord dir-vec]
   ; (println "leaving quadrant")
@@ -116,18 +117,18 @@
                                     factor
                                     dir-vec)
         energy (- (get-in @game-state [:enterprise :energy])
-                  (+ -5 (* 8 (int factor))))]
-    (def q (vec (->> (map #(int (/ % 8)) place)
-                     (map #(max % 1))
-                     (map #(min % 8)))))
-    (def s (vec (map #(math/round %) (map - place (vec (map #(* 8 %) q))))))
+                  (+ -5 (* 8 (int factor))))
+        q (vec (->> (map #(int (/ % 8)) place)
+                    (map #(max % 1))
+                    (map #(min % 8))))
+        s (vec (map #(math/round %) (map - place (vec (map #(* 8 %) q)))))]
 
     (swap! game-state update-in [:enterprise] merge {:sector s :quadrant q :energy energy})
 
     (when (> factor 1)
-      (swap! game-state update-in [:stardate :current] inc)))
+      (swap! game-state update-in [:stardate :current] inc))
 
-  (w/update-lrs-cell game-state (get-in @game-state [:quads (u/coord-to-index q)]))
+    (w/update-lrs-cell game-state (get-in @game-state [:quads (u/coord-to-index q)])))
 
   (swap! game-state assoc-in [:current-klingons] [])
   (enter-quadrant game-state))
