@@ -34,7 +34,12 @@
              :starting-klingons (remaining-klingon-count quads)
              :stardate {:start stardate :current stardate :end 30}})))
 
-(defn short-range-scan-command [game-state]
+(defn short-range-scan-command 
+  "Creates most of the visible UI for the player. You get to see
+  where the enterprise is in relationship to everything else. This
+  makes inter-quadrant navigation possible. Should display current
+  quadrant grid and status of shields, power, torpedos, etc." 
+  [game-state]
   (with-local-vars [condition 3]
     (cond
       (is-docked? game-state) (dock game-state)
@@ -46,7 +51,19 @@
       (u/message "\n*** SHORT RANGE SENSORS ARE OUT ***\n")
       (display-scan game-state condition))))
 
-(defn long-range-scan-command [game-state]
+(defn long-range-scan-command 
+  "Used by the player to find nearby klingons without having to enter every
+  quadrant. If the lrs scanners are damaged this command will not work. If
+  the computers are damaged, the command will work but the results of the
+  command will not be stored into the history.
+
+  SHOWS CONDITIONS IN SPACE FOR ONE QUADRANT ON EACH SIDE
+  OF THE ENTERPRISE IN THE MIDDLE OF THE SCAN.  THE SCAN
+  IS CODED IN THE FORM XXX, WHERE THE UNITS DIGIT IS THE
+  NUMBER OF STARS, THE TENS DIGIT IS THE NUMBER OF STAR-
+  BASES, THE HUNDREDS DIGIT IS THE NUMBER OF KLINGONS.
+  "
+  [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :long_range_sensors]))
     (u/message "LONG RANGE SENSORS ARE INOPERABLE")
     (do 
@@ -64,7 +81,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; These methods are used to check on the current world state.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn nearby-space [coord]                                                                           
+(defn nearby-space 
+  "Awesome helper. First the set of all valid coordinates within
+  1 step of the current position. Can be used for quadrants or
+  sectors."
+  [coord]                                                                           
   (filter seq
           (for [x (range (dec (first coord)) (+ 2 (first coord)))
                 y (range (dec (second coord)) (+ 2 (second coord)))]
@@ -72,7 +93,10 @@
                                        (map #(> % 8) [x y])))
               [x y]))))
 
-(defn is-docked? [game-state]
+(defn is-docked? 
+  "Used to detect if the enterprise is docked with a nearby
+  Starbase."
+  [game-state]
   (let [sector (get-in @game-state [:enterprise :sector])
         current-sector (get-in @game-state [:current-sector])]
     (->> (nearby-space sector)
@@ -92,7 +116,7 @@
   [quadrants]
   (reduce + (map #(:bases %) quadrants)))
 
-(defn create-empty-lrs-history []
+(defn- create-empty-lrs-history []
   (vec (for [y (range 1 (+ 1 dim)) x (range 1 (+ 1 dim))] "000")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -142,7 +166,7 @@
                        (get-in @game-state [:enterprise :photon_torpedoes])))
     (u/message "-=--=--=--=--=--=--=--=-")))
 
-(defn lrs-points [quadrant]
+(defn- lrs-points [quadrant]
   (let [xmin (dec (first quadrant)) 
         xmax (+ 2 (first quadrant))
         ymin (dec (second quadrant))
@@ -160,7 +184,7 @@
   (swap! game-state assoc-in [:lrs-history (u/coord-to-index [(:x quad) (:y quad)])] 
          (format "%d%d%d" (:bases quad) (:klingons quad) (:stars quad))))
 
-(defn lrs-row [game-state row]
+(defn- lrs-row [game-state row]
   (->> row
        (map #(if (empty? %) -1 (u/coord-to-index %)))
        (map #(if (< % 0) {} (get-in @game-state [:quads %])))

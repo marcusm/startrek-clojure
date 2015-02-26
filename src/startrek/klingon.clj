@@ -29,5 +29,10 @@
                      (max 0.0 (get-in r [:enterprise :shields]))))
         (:enterprise r))))
 
-(defn klingon-turn [enterprise klingons]
+(defn klingon-turn 
+  "Sad fact for the player, the klingons shoot first. They don't have any AI
+  so this is their only chance to hurt the player. All klingons get to shot
+  prior to the player completing any command that results in the enterprise
+  attacking or moving."
+  [enterprise klingons]
   (reduce klingon-attack enterprise klingons))

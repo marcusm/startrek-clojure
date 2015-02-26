@@ -70,5 +70,8 @@
 (def messages (atom []))
 
 (defn message 
+  "All print side effects are written to here by default. This is to reduce spam
+  during unit tests or while testing code in the REPL. During actual execution,
+  the main game loop rebinds this to println."
   ([] (swap! messages conj ""))
   ([text & rest] (swap! messages conj text rest)))

@@ -133,7 +133,28 @@
   (swap! game-state assoc-in [:current-klingons] [])
   (enter-quadrant game-state))
 
-(defn move [game-state course factor]
+(defn move 
+  "Moving sector by sector or quadrant by quadrant. It all happens here. Any klingons
+  in the current quadrant get to take shots prior to the player moving.
+  
+  COURSE IS IN A CIRCULAR NUMERICAL          4    3    2
+  VECTOR ARRANGEMENT AS SHOWN.                `.  :  .'
+  INTEGER AND REAL VALUES MAY BE               `.:.'
+  USED.  THEREFORE COURSE 1.5 IS             5---<*>---1
+  HALF WAY BETWEEN 1 AND 2.                     .':`.
+                                              .'  :  `.
+  A VECTOR OF 9 IS UNDEFINED, BUT            6    7    8
+  VALUES MAY APPROACH 9.
+                                               COURSE
+  ONE 'WARP FACTOR' IS THE SIZE OF
+  ONE QUADRANT.  THEREFORE TO GET FROM
+  QUADRANT 5,6 TO 5,5 YOU WOULD USE COURSE 3, WARP
+  FACTOR 1. COORDINATES ARE SPECIFIED USING X,Y NOTATION
+  WITH X 1-8 FROM LEFT-RIGHT AND Y 1-8 FROM TOP-BOTTOM.
+
+  This is polar coordinates normalize to values from 1-9.
+  "
+  [game-state course factor]
   (let [n (int (* factor 8))
         coord (get-in @game-state [:enterprise :sector])
         course' (- course 1)]

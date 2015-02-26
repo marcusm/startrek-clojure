@@ -30,7 +30,11 @@
         (u/message "   3 = COMPUTER NAVIGATION DATA");
         (recur (pick-computer-command))))))
 
-(defn computer-command [game-state]
+(defn computer-command 
+  "This function controls the computer command sub-menu. A player
+  should select a sub-menu function once they interface with the computer.
+  Unrecognized commands result in no action."
+  [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :computer_display]))
       (u/message "COMPUTER DISABLED")
       (let [command (select-computer-command)]
@@ -44,7 +48,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The Galactic Record
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn galactic-record [game-state]
+(defn galactic-record 
+  "This function writes out an 8x8 grid showing all quadrants a player
+  has been too since the game started. Empty quadrants are \"000\" and
+  visited quadrants are in \"bks\" format - where 'b' i the bases
+  count, 'k' is the count of klingons and 's' is the count of stars
+  in that quadrant."
+  [game-state]
   (u/message (format "COMPUTER RECORD OF GALAXY FOR QUADRANT %s" 
                      (u/point-2-str (get-in @game-state [:enterprise :quadrant]))))
 
@@ -60,7 +70,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Status Report
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn status-report [game-state]
+(defn status-report
+  "Reports on the current state of known space. the player can see the number of
+  remaining klingons to beat, starbases for support and the amount of time
+  remaining before the game ends. Current damage to the ships is also reported."
+  [game-state]
       (u/message "")
       (u/message "   STATUS REPORT")
       (u/message "NUMBER OF KLINGONS LEFT  = " (w/remaining-klingon-count (get-in @game-state [:quads])))
@@ -100,7 +114,10 @@
                        d
                        (u/point-2-str [(:x k) (:y k)]))))))
 
-(defn photon-torpedo-data [game-state]
+(defn photon-torpedo-data 
+  "An aid to assist new or lazy players target their photon torpedoes. This function
+  will report out the direction in game space angles to assist with targeting."
+  [game-state]
   (if (seq (get-in @game-state [:current-klingons]))
     (compute-targeting-data game-state)
     (u/message "NO KLINGONS IN THE CURRENT QUADRANT.")))
@@ -128,7 +145,11 @@
     {:direction (compute-direction e [x y])
      :distance (compute-distance e [x y])}))
 
-(defn warp-distance-calculator [game-state]
+(defn warp-distance-calculator 
+  "Helps new or lazy players discover which direction to move and how fast (warp factor)
+  to travel to go a selected quadrant. Results are displayed to the user in
+  in game direction units and warp units." 
+  [game-state]
   (u/message "PICK THE TARGETED QUADRANT")
   (let [nav (navigation-calculator (get-in @game-state [:enterprise :quadrant]))]
     (u/message (format "COMPUTER REPORTS DIRECTION: %1.3f DISTANCE: %1.3f" 

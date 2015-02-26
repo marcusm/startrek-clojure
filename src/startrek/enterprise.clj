@@ -37,30 +37,48 @@
          get-system
          damage-station-map)
 
-(defn fire-phasers-command [game-state]
+(defn fire-phasers-command 
+  "Used by the player to fire the phasers at klingons. Fails unless there are klingons
+  in the same quadrant. Phaser power is divided evenly among all klingons. The further
+  the klingon is away from the enterprise the less damage they will take. If the phasers
+  system is damaged the system will not work. If the computers are damaged, the phasers
+  will do less damage." 
+  [game-state]
   (cond
     (empty? (get-in @game-state [:current-klingons])) (u/message "SHORT RANGE SENSORS REPORT NO KLINGONS IN THIS QUADRANT")
     (neg? (get-in @game-state [:enterprise :damage :phasers])) (u/message "PHASER CONTROL IS DISABLED")
     :else (fire-phasers game-state)))
 
-(defn fire-torpedoes-command [game-state]
+(defn fire-torpedoes-command 
+  "Used by the player to fire a photon torpedo in a specific direction. Only works if klingons
+  are in the current quadrant. Will fail to work if the system is damaged."
+  [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :photon_torpedo_tubes]))
     (u/message "PHOTON TUBES ARE NOT OPERATIONAL")
     (if (pos? (get-in @game-state [:enterprise :photon_torpedoes]))
       (fire-torpedoes game-state)
       (u/message "ALL PHOTON TORPEDOES EXPENDED"))))
 
-(defn shield-control-command [game-state]
+(defn shield-control-command 
+  "Used by the user to increase or decrease the amount of energy dedicated to the shields.
+  The system will not work if the shield controls are damaged."
+  [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :shields]))
       (u/message "SHIELD CONTROL IS NON-OPERATIONAL")
       (shield-control game-state)))
 
-(defn damage-control-report-command [game-state]
+(defn damage-control-report-command
+  "Triggered by direct user action, this command is responsible for
+  reporting the current state of any damaged systems to the user."
+  [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :damage_control]))
     (u/message "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
     (damage-control-report game-state)))
 
-(defn enterprise-update [game-state]
+(defn enterprise-update 
+  "This function should be called every-turn no klingons are present. This
+  will update the current repair state of the enterprise."
+  [game-state]
   (when (empty? (get-in @game-state [:current-klingons]))
     (repair-damage game-state (get-in @game-state [:enterprise]))
     (when (<= (gen-double) 0.2)

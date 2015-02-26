@@ -104,7 +104,10 @@
 (defn user-input []
   (parse-number (read-line)))
 
-(defn play-game []
+(defn play-game 
+  "The main game loop. When you quit out, the game shuts down. Otherwise a new game starts
+  immediately after the old one was finished."
+  []
   (w/new-game-state game-state)
   (n/enter-quadrant game-state)
   (let [stop-condition (ref false)]
