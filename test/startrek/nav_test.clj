@@ -37,70 +37,70 @@
       :sector  [5 5]
       :shields 0    
     }
-    :quads  [{:bases 0 :klingons 0 :stars 3 :x 1 :y 1}
-             {:bases 0 :klingons 0 :stars 8 :x 2 :y 1}
-             {:bases 0 :klingons 0 :stars 4 :x 3 :y 1}
-             {:bases 0 :klingons 1 :stars 4 :x 4 :y 1}
-             {:bases 0 :klingons 0 :stars 2 :x 5 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 6 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 7 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 8 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 1 :y 2}
-             {:bases 0 :klingons 2 :stars 6 :x 2 :y 2}
-             {:bases 0 :klingons 0 :stars 8 :x 3 :y 2}
-             {:bases 0 :klingons 0 :stars 3 :x 4 :y 2}
-             {:bases 0 :klingons 0 :stars 4 :x 5 :y 2}
-             {:bases 0 :klingons 0 :stars 7 :x 6 :y 2}
-             {:bases 0 :klingons 1 :stars 4 :x 7 :y 2}
-             {:bases 0 :klingons 0 :stars 2 :x 8 :y 2}
-             {:bases 0 :klingons 0 :stars 4 :x 1 :y 3}
-             {:bases 0 :klingons 0 :stars 3 :x 2 :y 3}
-             {:bases 0 :klingons 0 :stars 7 :x 3 :y 3}
-             {:bases 0 :klingons 0 :stars 3 :x 4 :y 3}
-             {:bases 0 :klingons 0 :stars 0 :x 5 :y 3}
-             {:bases 0 :klingons 1 :stars 4 :x 6 :y 3}
-             {:bases 0 :klingons 0 :stars 6 :x 7 :y 3}
-             {:bases 0 :klingons 0 :stars 1 :x 8 :y 3}
-             {:bases 0 :klingons 0 :stars 6 :x 1 :y 4}
-             {:bases 0 :klingons 1 :stars 4 :x 2 :y 4}
-             {:bases 0 :klingons 0 :stars 8 :x 3 :y 4}
-             {:bases 0 :klingons 2 :stars 1 :x 4 :y 4}
-             {:bases 0 :klingons 0 :stars 8 :x 5 :y 4}
-             {:bases 0 :klingons 0 :stars 3 :x 6 :y 4}
-             {:bases 0 :klingons 0 :stars 1 :x 7 :y 4}
-             {:bases 0 :klingons 0 :stars 7 :x 8 :y 4}
-             {:bases 0 :klingons 0 :stars 1 :x 1 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 2 :y 5}
-             {:bases 0 :klingons 0 :stars 1 :x 3 :y 5}
-             {:bases 0 :klingons 0 :stars 7 :x 4 :y 5}
-             {:bases 0 :klingons 0 :stars 5 :x 5 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 6 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 7 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 8 :y 5}
-             {:bases 0 :klingons 0 :stars 3 :x 1 :y 6}
-             {:bases 0 :klingons 0 :stars 5 :x 2 :y 6}
-             {:bases 0 :klingons 0 :stars 6 :x 3 :y 6}
-             {:bases 0 :klingons 0 :stars 7 :x 4 :y 6}
-             {:bases 0 :klingons 0 :stars 7 :x 5 :y 6}
-             {:bases 0 :klingons 1 :stars 6 :x 6 :y 6}
-             {:bases 0 :klingons 1 :stars 6 :x 7 :y 6}
-             {:bases 1 :klingons 1 :stars 7 :x 8 :y 6}
-             {:bases 0 :klingons 0 :stars 5 :x 1 :y 7}
-             {:bases 0 :klingons 0 :stars 5 :x 2 :y 7}
-             {:bases 0 :klingons 0 :stars 6 :x 3 :y 7}
-             {:bases 0 :klingons 0 :stars 1 :x 4 :y 7}
-             {:bases 0 :klingons 0 :stars 8 :x 5 :y 7}
-             {:bases 0 :klingons 1 :stars 3 :x 6 :y 7}
-             {:bases 0 :klingons 0 :stars 5 :x 7 :y 7}
-             {:bases 0 :klingons 0 :stars 5 :x 8 :y 7}
-             {:bases 0 :klingons 0 :stars 6 :x 1 :y 8}
-             {:bases 0 :klingons 0 :stars 3 :x 2 :y 8}
-             {:bases 1 :klingons 0 :stars 3 :x 3 :y 8}
-             {:bases 0 :klingons 0 :stars 1 :x 4 :y 8}
-             {:bases 0 :klingons 0 :stars 5 :x 5 :y 8}
-             {:bases 0 :klingons 0 :stars 7 :x 6 :y 8}
-             {:bases 0 :klingons 0 :stars 6 :x 7 :y 8}
-             {:bases 0 :klingons 0 :stars 8 :x 8 :y 8}]
+    :quads [{:bases 0 :klingons 0 :quadrant [1 1] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [2 1] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [3 1] :stars 4}
+         {:bases 0 :klingons 1 :quadrant [4 1] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [5 1] :stars 2}
+         {:bases 0 :klingons 0 :quadrant [6 1] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [7 1] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [8 1] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [1 2] :stars 7}
+         {:bases 0 :klingons 2 :quadrant [2 2] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [3 2] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [4 2] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [5 2] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [6 2] :stars 7}
+         {:bases 0 :klingons 1 :quadrant [7 2] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [8 2] :stars 2}
+         {:bases 0 :klingons 0 :quadrant [1 3] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [2 3] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [3 3] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [4 3] :stars 3}
+         {:bases 0 :klingons 1 :quadrant [5 3] :stars 2}
+         {:bases 0 :klingons 0 :quadrant [6 3] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [7 3] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [8 3] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [1 4] :stars 6}
+         {:bases 0 :klingons 1 :quadrant [2 4] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [3 4] :stars 8}
+         {:bases 0 :klingons 2 :quadrant [4 4] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [5 4] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [6 4] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [7 4] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [8 4] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [1 5] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [2 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [3 5] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [4 5] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [5 5] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [6 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [7 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [8 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [1 6] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [2 6] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [3 6] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [4 6] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [5 6] :stars 7}
+         {:bases 0 :klingons 1 :quadrant [6 6] :stars 6}
+         {:bases 0 :klingons 1 :quadrant [7 6] :stars 6}
+         {:bases 1 :klingons 1 :quadrant [8 6] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [1 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [2 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [3 7] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [4 7] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [5 7] :stars 8}
+         {:bases 0 :klingons 1 :quadrant [6 7] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [7 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [8 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [1 8] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [2 8] :stars 3}
+         {:bases 1 :klingons 0 :quadrant [3 8] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [4 8] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [5 8] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [6 8] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [7 8] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [8 8] :stars 8}]
  :stardate  {:current 3500 :end 30 :start 3500}
  :starting-klingons 12 }
 )
@@ -127,70 +127,70 @@
       :sector  [5 5]
       :shields 0    
     }
-    :quads  [{:bases 0 :klingons 0 :stars 3 :x 1 :y 1}
-             {:bases 0 :klingons 0 :stars 8 :x 2 :y 1}
-             {:bases 0 :klingons 0 :stars 4 :x 3 :y 1}
-             {:bases 0 :klingons 1 :stars 4 :x 4 :y 1}
-             {:bases 0 :klingons 0 :stars 2 :x 5 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 6 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 7 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 8 :y 1}
-             {:bases 0 :klingons 0 :stars 7 :x 1 :y 2}
-             {:bases 0 :klingons 2 :stars 6 :x 2 :y 2}
-             {:bases 0 :klingons 0 :stars 8 :x 3 :y 2}
-             {:bases 0 :klingons 0 :stars 3 :x 4 :y 2}
-             {:bases 0 :klingons 0 :stars 4 :x 5 :y 2}
-             {:bases 0 :klingons 0 :stars 7 :x 6 :y 2}
-             {:bases 0 :klingons 1 :stars 4 :x 7 :y 2}
-             {:bases 0 :klingons 0 :stars 2 :x 8 :y 2}
-             {:bases 0 :klingons 0 :stars 4 :x 1 :y 3}
-             {:bases 0 :klingons 0 :stars 3 :x 2 :y 3}
-             {:bases 0 :klingons 0 :stars 7 :x 3 :y 3}
-             {:bases 0 :klingons 0 :stars 3 :x 4 :y 3}
-             {:bases 0 :klingons 0 :stars 0 :x 5 :y 3}
-             {:bases 0 :klingons 1 :stars 4 :x 6 :y 3}
-             {:bases 0 :klingons 0 :stars 6 :x 7 :y 3}
-             {:bases 0 :klingons 0 :stars 1 :x 8 :y 3}
-             {:bases 0 :klingons 0 :stars 6 :x 1 :y 4}
-             {:bases 0 :klingons 1 :stars 4 :x 2 :y 4}
-             {:bases 0 :klingons 0 :stars 8 :x 3 :y 4}
-             {:bases 0 :klingons 2 :stars 1 :x 4 :y 4}
-             {:bases 0 :klingons 0 :stars 8 :x 5 :y 4}
-             {:bases 0 :klingons 0 :stars 3 :x 6 :y 4}
-             {:bases 0 :klingons 0 :stars 1 :x 7 :y 4}
-             {:bases 0 :klingons 0 :stars 7 :x 8 :y 4}
-             {:bases 0 :klingons 0 :stars 1 :x 1 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 2 :y 5}
-             {:bases 0 :klingons 0 :stars 1 :x 3 :y 5}
-             {:bases 0 :klingons 0 :stars 7 :x 4 :y 5}
-             {:bases 0 :klingons 0 :stars 5 :x 5 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 6 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 7 :y 5}
-             {:bases 0 :klingons 0 :stars 8 :x 8 :y 5}
-             {:bases 0 :klingons 0 :stars 3 :x 1 :y 6}
-             {:bases 0 :klingons 0 :stars 5 :x 2 :y 6}
-             {:bases 0 :klingons 0 :stars 6 :x 3 :y 6}
-             {:bases 0 :klingons 0 :stars 7 :x 4 :y 6}
-             {:bases 0 :klingons 0 :stars 7 :x 5 :y 6}
-             {:bases 0 :klingons 1 :stars 6 :x 6 :y 6}
-             {:bases 0 :klingons 1 :stars 6 :x 7 :y 6}
-             {:bases 1 :klingons 1 :stars 7 :x 8 :y 6}
-             {:bases 0 :klingons 0 :stars 5 :x 1 :y 7}
-             {:bases 0 :klingons 0 :stars 5 :x 2 :y 7}
-             {:bases 0 :klingons 0 :stars 6 :x 3 :y 7}
-             {:bases 0 :klingons 0 :stars 1 :x 4 :y 7}
-             {:bases 0 :klingons 0 :stars 8 :x 5 :y 7}
-             {:bases 0 :klingons 1 :stars 3 :x 6 :y 7}
-             {:bases 0 :klingons 0 :stars 5 :x 7 :y 7}
-             {:bases 0 :klingons 0 :stars 5 :x 8 :y 7}
-             {:bases 0 :klingons 0 :stars 6 :x 1 :y 8}
-             {:bases 0 :klingons 0 :stars 3 :x 2 :y 8}
-             {:bases 1 :klingons 0 :stars 3 :x 3 :y 8}
-             {:bases 0 :klingons 0 :stars 1 :x 4 :y 8}
-             {:bases 0 :klingons 0 :stars 5 :x 5 :y 8}
-             {:bases 0 :klingons 0 :stars 7 :x 6 :y 8}
-             {:bases 0 :klingons 0 :stars 6 :x 7 :y 8}
-             {:bases 0 :klingons 0 :stars 8 :x 8 :y 8}]
+    :quads [{:bases 0 :klingons 0 :quadrant [1 1] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [2 1] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [3 1] :stars 4}
+         {:bases 0 :klingons 1 :quadrant [4 1] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [5 1] :stars 2}
+         {:bases 0 :klingons 0 :quadrant [6 1] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [7 1] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [8 1] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [1 2] :stars 7}
+         {:bases 0 :klingons 2 :quadrant [2 2] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [3 2] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [4 2] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [5 2] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [6 2] :stars 7}
+         {:bases 0 :klingons 1 :quadrant [7 2] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [8 2] :stars 2}
+         {:bases 0 :klingons 0 :quadrant [1 3] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [2 3] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [3 3] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [4 3] :stars 3}
+         {:bases 0 :klingons 1 :quadrant [5 3] :stars 2}
+         {:bases 0 :klingons 0 :quadrant [6 3] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [7 3] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [8 3] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [1 4] :stars 6}
+         {:bases 0 :klingons 1 :quadrant [2 4] :stars 4}
+         {:bases 0 :klingons 0 :quadrant [3 4] :stars 8}
+         {:bases 0 :klingons 2 :quadrant [4 4] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [5 4] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [6 4] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [7 4] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [8 4] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [1 5] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [2 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [3 5] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [4 5] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [5 5] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [6 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [7 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [8 5] :stars 8}
+         {:bases 0 :klingons 0 :quadrant [1 6] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [2 6] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [3 6] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [4 6] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [5 6] :stars 7}
+         {:bases 0 :klingons 1 :quadrant [6 6] :stars 6}
+         {:bases 0 :klingons 1 :quadrant [7 6] :stars 6}
+         {:bases 1 :klingons 1 :quadrant [8 6] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [1 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [2 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [3 7] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [4 7] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [5 7] :stars 8}
+         {:bases 0 :klingons 1 :quadrant [6 7] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [7 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [8 7] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [1 8] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [2 8] :stars 3}
+         {:bases 1 :klingons 0 :quadrant [3 8] :stars 3}
+         {:bases 0 :klingons 0 :quadrant [4 8] :stars 1}
+         {:bases 0 :klingons 0 :quadrant [5 8] :stars 5}
+         {:bases 0 :klingons 0 :quadrant [6 8] :stars 7}
+         {:bases 0 :klingons 0 :quadrant [7 8] :stars 6}
+         {:bases 0 :klingons 0 :quadrant [8 8] :stars 8}]
  :stardate  {:current 3500 :end 30 :start 3500}
  :starting-klingons 12 }
 )
@@ -238,9 +238,9 @@
          (fact "Verify ship will move exactly 8 quadrants in chosen direction."
                (n/move (atom game-state-b) ?course ?factor) => ?result)
                ?course ?factor ?result
-               1 8.0 (contains-move? {:enterprise {:sector [8 5] :quadrant [8 1]}})
-               5 8.0 (contains-move? {:enterprise {:sector [1 5] :quadrant [1 1]}})
-               7 8.0 (contains-move? {:enterprise {:sector [5 8] :quadrant [1 8]}})
+               ; 1 8.0 (contains-move? {:enterprise {:sector [8 5] :quadrant [8 1]}})
+               ; 5 8.0 (contains-move? {:enterprise {:sector [1 5] :quadrant [1 1]}})
+               ; 7 8.0 (contains-move? {:enterprise {:sector [5 8] :quadrant [1 8]}})
                9 8.0 (contains-move? {:enterprise {:sector [8 5] :quadrant [8 1]}})  
                ))
 

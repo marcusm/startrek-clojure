@@ -181,7 +181,7 @@
             []))))))
 
 (defn update-lrs-cell [game-state quad]
-  (swap! game-state assoc-in [:lrs-history (u/coord-to-index [(:x quad) (:y quad)])] 
+  (swap! game-state assoc-in [:lrs-history (u/coord-to-index (:quadrant quad))] 
          (format "%d%d%d" (:bases quad) (:klingons quad) (:stars quad))))
 
 (defn- lrs-row [game-state row]
@@ -192,15 +192,14 @@
                "000" 
                (do 
                  (update-lrs-cell game-state %)
-                 (get-in @game-state [:lrs-history (u/coord-to-index [(:x %) (:y %)])]))))))
+                 (get-in @game-state [:lrs-history (u/coord-to-index (:quadrant %))]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; All of these functions are used to fill quadrants with actors.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- create-quadrants []
   (vec (for [y (range 1 (inc dim)) x (range 1 (inc dim))]
-         {:x x 
-          :y y 
+         {:quadrant [x y]
           :klingons (assign-quadrant-klingons) 
           :stars (assign-quadrant-stars)
           :bases (assign-quadrant-starbases)})))

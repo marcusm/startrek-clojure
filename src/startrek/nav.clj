@@ -112,7 +112,6 @@
   (w/place-quadrant game-state))
 
 (defn- leave-quadrant [game-state factor coord dir-vec]
-  ; (println "leaving quadrant")
   (let [place (warp-travel-distance (get-in @game-state [:enterprise])
                                     factor
                                     dir-vec)
