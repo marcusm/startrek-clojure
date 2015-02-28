@@ -28,7 +28,7 @@
              (zero? (get-in @actual [:current-sector (u/coord-to-index [4 3])])))
            ))
 
-(def game-state-e {:current-klingons  [{:x 4 :y 3 :energy 60} {:x 6 :y 3 :energy 100}]
+(def game-state-e {:current-klingons  [{:sector [4 3] :energy 60} {:sector [6 3] :energy 100}]
     :current-sector  [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] 
     :enterprise 
     {

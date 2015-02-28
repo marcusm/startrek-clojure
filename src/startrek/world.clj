@@ -284,6 +284,6 @@
         (do
           (swap! game-state
                  assoc-in [:current-klingons]
-                          (conj (get-in @game-state [:current-klingons]) {:x x :y y :energy 200}))
+                          (conj (get-in @game-state [:current-klingons]) {:sector [x y] :energy 200}))
           (swap! sector assoc (coord-to-index [x y]) value))))))
 

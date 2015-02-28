@@ -15,7 +15,7 @@
                                  :quadrant [2 3]}
                     :quads {}
                     :current-sector {}
-                    :current-klingons [{:x 2 :y 8 :energy 200} {:x 3 :y 8 :energy 0} {:x 3 :y 8 :energy 200}]
+                    :current-klingons [{:sector [2 8] :energy 200} {:sector [3 8] :energy 0} {:sector [3 8] :energy 200}]
                     :starting-klingons 17
                     :stardate {:start 3200 :current 3220 :end 30}})]
              (c/game-over? game-state) => result?

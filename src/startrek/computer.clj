@@ -109,10 +109,10 @@
 
 (defn- compute-targeting-data [game-state]
   (doseq [k (get-in @game-state [:current-klingons])] 
-    (let [d (compute-direction (get-in @game-state [:enterprise :sector]) [(:x k) (:y k)])]
+    (let [d (compute-direction (get-in @game-state [:enterprise :sector]) (:sector k))]
       (u/message (format "DIRECTION %1.3f TO KLINGON AT SECTOR %s"
                        d
-                       (u/point-2-str [(:x k) (:y k)]))))))
+                       (u/point-2-str (:sector k)))))))
 
 (defn photon-torpedo-data 
   "An aid to assist new or lazy players target their photon torpedoes. This function

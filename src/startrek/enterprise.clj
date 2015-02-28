@@ -115,13 +115,13 @@
                                :klingons] - 1))
 
 (defn- phasers-hit-klingon [game-state klingon]
-  (let [p [(:x klingon) (:y klingon)]]
+  (let [p [(:sector klingon)]]
     (u/message (format "*** KLINGON AT SECTOR %s DESTROYED ***" (u/point-2-str p)))
     (remove-klingon game-state p)
   nil))
 
 (defn- enterprise-attack [game-state power k-count klingon]
-  (let [p [(:x klingon) (:y klingon)]
+  (let [p [(:sector klingon)]
         h (-> @power
               (/ k-count
                  (u/euclidean-distance
@@ -177,7 +177,7 @@
   (u/message "*** KLINGON DESTROYED ***")
   (swap! game-state assoc-in [:current-klingons] 
          (->> (get-in @game-state [:current-klingons])
-              (map #(if (= coord [(:x %) (:y %)]) nil %))
+              (map #(if (= coord (:sector %)) nil %))
               (remove nil?)
               (vec)))
   (remove-klingon game-state coord))
