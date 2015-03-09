@@ -10,9 +10,9 @@
   (checker [actual]
            (def expected' (first expected))
            (and
-             (= (get-in @actual [:enterprise :energy])
+             (= (get-in actual [:enterprise :energy])
                 (get-in expected' [:enterprise :energy]))
-             (= (get-in @actual [:enterprise :shields])
+             (= (get-in actual [:enterprise :shields])
                 (get-in expected' [:enterprise :shields]))
              )))
 
@@ -133,7 +133,6 @@
           :warp_engines 0
          } 
       :energy 3000 
-      :is_docked false
       :photon_torpedoes 10
       :quadrant  [1 1]
       :sector  [5 5]

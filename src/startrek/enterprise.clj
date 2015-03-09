@@ -25,31 +25,31 @@
    :quadrant [(gen-idx) (gen-idx)]
    :sector [(gen-idx) (gen-idx)]
    })
- 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Publicly exported functions for use by core.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(declare fire-phasers 
-         fire-torpedoes 
-         shield-control 
-         damage-control-report 
-         repair-damage 
+(declare fire-phasers
+         fire-torpedoes
+         shield-control
+         damage-control-report
+         repair-damage
          get-system
          damage-station-map)
 
-(defn fire-phasers-command 
+(defn fire-phasers-command
   "Used by the player to fire the phasers at klingons. Fails unless there are klingons
   in the same quadrant. Phaser power is divided evenly among all klingons. The further
   the klingon is away from the enterprise the less damage they will take. If the phasers
   system is damaged the system will not work. If the computers are damaged, the phasers
-  will do less damage." 
+  will do less damage."
   [game-state]
   (cond
     (empty? (get-in @game-state [:current-klingons])) (u/message "SHORT RANGE SENSORS REPORT NO KLINGONS IN THIS QUADRANT")
     (neg? (get-in @game-state [:enterprise :damage :phasers])) (u/message "PHASER CONTROL IS DISABLED")
     :else (fire-phasers game-state)))
 
-(defn fire-torpedoes-command 
+(defn fire-torpedoes-command
   "Used by the player to fire a photon torpedo in a specific direction. Only works if klingons
   are in the current quadrant. Will fail to work if the system is damaged."
   [game-state]
@@ -59,13 +59,13 @@
       (fire-torpedoes game-state)
       (u/message "ALL PHOTON TORPEDOES EXPENDED"))))
 
-(defn shield-control-command 
+(defn shield-control-command
   "Used by the user to increase or decrease the amount of energy dedicated to the shields.
   The system will not work if the shield controls are damaged."
   [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :shields]))
       (u/message "SHIELD CONTROL IS NON-OPERATIONAL")
-      (shield-control game-state)))
+      (swap! game-state shield-control)))
 
 (defn damage-control-report-command
   "Triggered by direct user action, this command is responsible for
@@ -73,7 +73,7 @@
   [game-state]
   (if (neg? (get-in @game-state [:enterprise :damage :damage_control]))
     (u/message "DAMAGE CONTROL REPORT IS NOT AVAILABLE")
-    (damage-control-report game-state)))
+    (damage-control-report @game-state)))
 
 (defn enterprise-update 
   "This function should be called every-turn no klingons are present. This
@@ -110,7 +110,7 @@
 (defn- remove-klingon [game-state p]
   (swap! game-state assoc-in [:current-sector (u/coord-to-index p)] 0)
 
-  (swap! game-state update-in [:quads 
+  (swap! game-state update-in [:quads
                                (u/coord-to-index (get-in @game-state [:enterprise :quadrant]))
                                :klingons] - 1))
 
@@ -129,7 +129,7 @@
                    p))
               (* 2 (r/gen-double)))
         z (max 0.0 (- (:energy klingon) h))]
-    
+
     (u/message (format "%f UNIT HIT ON KLINGON AT SECTOR %s\n   (%f LEFT)"
                      h
                      (u/point-2-str p)
@@ -143,7 +143,7 @@
   (let [power (atom (select-phaser-power (get-in @game-state [:enterprise :energy])))
         k-count (count (get-in @game-state [:current-klingons]))]
     (swap! game-state update-in [:enterprise :energy] - @power)
-    (swap! game-state assoc-in [:enterprise] (k/klingon-turn 
+    (swap! game-state assoc-in [:enterprise] (k/klingon-turn
                                                (get-in @game-state [:enterprise])
                                                (get-in @game-state [:current-klingons])))
 
@@ -151,7 +151,7 @@
       (when (neg? (get-in @game-state [:enterprise :damage :computer_display]))
         (swap! power #(* % (r/gen-double))))
 
-      (swap! game-state assoc-in [:current-klingons] 
+      (swap! game-state assoc-in [:current-klingons]
              (->> (get-in @game-state [:current-klingons])
                   (map #(enterprise-attack game-state power k-count %))
                   (map #(if (pos? (:energy %)) % (phasers-hit-klingon game-state %)))
@@ -175,7 +175,7 @@
 
 (defn- torpedo-hit-klingon [game-state coord]
   (u/message "*** KLINGON DESTROYED ***")
-  (swap! game-state assoc-in [:current-klingons] 
+  (swap! game-state assoc-in [:current-klingons]
          (->> (get-in @game-state [:current-klingons])
               (map #(if (= coord (:sector %)) nil %))
               (remove nil?)
@@ -187,7 +187,7 @@
   (swap! game-state assoc-in [:current-sector (u/coord-to-index coord)] 0))
 
 (defn- torpedo-hit-star []
-  (u/message "YOU CAN'T DESTROY STARS SILLY") 
+  (u/message "YOU CAN'T DESTROY STARS SILLY")
   (u/message "TORPEDO MISSED"))
 
 (defn- fire-torpedoes [game-state]
@@ -200,7 +200,7 @@
 
       (u/message "TORPEDO TRACK:")
       (loop [p (map + coord dir-vec)]
-        (let [t (map #(math/round %) p) 
+        (let [t (map #(math/round %) p)
               s (get-in @game-state [:current-sector (u/coord-to-index t)])]
 
           (u/message (u/point-2-str t))
@@ -208,11 +208,11 @@
             (u/leave-quadrant? p) (u/message "TORPEDO MISSED")
             (= s u/klingon-id) (torpedo-hit-klingon game-state t)
             (= s u/base-id) (torpedo-hit-base game-state t)
-            (= s u/star-id) (torpedo-hit-star) 
+            (= s u/star-id) (torpedo-hit-star)
             :else (recur (map + p dir-vec))))))
 
     (when (pos? (count (get-in @game-state [:current-klingons])))
-      (swap! game-state assoc-in [:enterprise] (k/klingon-turn 
+      (swap! game-state assoc-in [:enterprise] (k/klingon-turn
                                                  (get-in @game-state [:enterprise])
                                                  (get-in @game-state [:current-klingons])))))
   game-state)
@@ -235,14 +235,17 @@
       )))
 
 (defn- shield-control [game-state]
-  (let [power (select-shield-power (get-in @game-state [:enterprise :energy])
-                                   (get-in @game-state [:enterprise :shields]))]
-    (when (pos? power)
-      (swap! game-state update-in [:enterprise :energy] +
-             (- (get-in @game-state [:enterprise :shields])
-                power))
-      (swap! game-state assoc-in [:enterprise :shields] power)))
-  game-state)
+  (let [power (select-shield-power (get-in game-state [:enterprise :energy])
+                                   (get-in game-state [:enterprise :shields]))]
+    (if (pos? power)
+      (-> game-state 
+          (update-in [:enterprise :energy] +
+                     (- (get-in game-state [:enterprise :shields])
+                        power))
+          (assoc-in [:enterprise :shields] power)
+          )
+      game-state)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The functions repair damage to the enterprise during turns.
@@ -281,7 +284,7 @@
 (defn- damage-control-report [game-state]
   (u/message "DEVICE        STATE OF REPAIR")
 
-  (doseq [damage (->> (get-in @game-state [:enterprise :damage])
+  (doseq [damage (->> (get-in game-state [:enterprise :damage])
                       (sort)
-                      (map #(format "%-15s %-2d" ((first %) damage-station-map) (int (second %)))))] 
+                      (map #(format "%-15s %-2d" ((first %) damage-station-map) (int (second %)))))]
     (u/message damage)))
